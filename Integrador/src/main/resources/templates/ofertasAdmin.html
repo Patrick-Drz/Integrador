@@ -4,18 +4,205 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Ofertas</title>
-        <link rel="stylesheet" href="/styleUser.css">
+        <link rel="stylesheet" href="/style.css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     </head>
     <body>
         <div th:replace="~{navbarAdmin :: adminNavbar}"></div>
+        <div class="container mt-4">
+            <h2>Gestión de Ofertas</h2>
 
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    Añadir Nueva Oferta
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/ofertas/add}" th:object="${oferta}" method="post">
+                        <div class="mb-3">
+                            <label for="codigo_oferta" class="form-label">Código de Oferta:</label>
+                            <input type="text" class="form-control" id="codigo_oferta" th:field="*{codigoOferta}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="nombre_oferta" class="form-label">Nombre de la Oferta:</label>
+                            <input type="text" class="form-control" id="nombre_oferta" th:field="*{nombreOferta}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Descripción:</label>
+                            <textarea class="form-control" id="descripcion" th:field="*{descripcion}" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="precio_regular" class="form-label">Precio Regular:</label>
+                            <input type="number" step="0.01" class="form-control" id="precio_regular" th:field="*{precioRegular}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="precio_oferta" class="form-label">Precio Oferta:</label>
+                            <input type="number" step="0.01" class="form-control" id="precio_oferta" th:field="*{precioOferta}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fecha_inicio" class="form-label">Fecha de Inicio:</label>
+                            <input type="date" class="form-control" id="fecha_inicio" th:field="*{fechaInicio}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fecha_fin" class="form-label">Fecha de Fin:</label>
+                            <input type="date" class="form-control" id="fecha_fin" th:field="*{fechaFin}" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="activa" th:field="*{activa}">
+                            <label class="form-check-label" for="activa">Activa</label>
+                        </div>
+                        <button type="submit" class="btn btn-success">Añadir Oferta</button>
+                    </form>
 
+                    <div th:if="${addMessage}" th:classappend="${addSuccess} ? 'alert-success' : 'alert-danger'" class="alert mt-3" role="alert">
+                        <span th:text="${addMessage}"></span>
+                    </div>
+                </div>
+            </div>
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            Lista de Ofertas
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Código</th>
+                                        <th>Nombre</th>
+                                        <th>Descripción</th>
+                                        <th>Precio Regular</th>
+                                        <th>Precio Oferta</th>
+                                        <th>F. Inicio</th>
+                                        <th>F. Fin</th>
+                                        <th>Activa</th>
+                                        <th class="acciones-col">Acciones</th> </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="oferta : ${ofertas}">
+                                        <td th:text="${oferta.id}"></td>
+                                        <td th:text="${oferta.codigoOferta}"></td>
+                                        <td th:text="${oferta.nombreOferta}"></td>
+                                        <td th:text="${oferta.descripcion}"></td>
+                                        <td th:text="${oferta.precioRegular}"></td>
+                                        <td th:text="${oferta.precioOferta}"></td>
+                                        <td th:text="${#temporals.format(oferta.fechaInicio, 'dd-MM-yyyy')}"></td>
+                                        <td th:text="${#temporals.format(oferta.fechaFin, 'dd-MM-yyyy')}"></td>
+                                        <td>
+                                            <span th:if="${oferta.activa}" class="badge bg-success">Sí</span>
+                                            <span th:unless="${oferta.activa}" class="badge bg-danger">No</span>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-warning btn-sm me-2" data-bs-toggle="modal" data-bs-target="#editOfferModal"
+                                                    th:data-offer-id="${oferta.id}"
+                                                    th:data-offer-codigo="${oferta.codigoOferta}"
+                                                    th:data-offer-nombre="${oferta.nombreOferta}"
+                                                    th:data-offer-descripcion="${oferta.descripcion}"
+                                                    th:data-offer-precio-regular="${oferta.precioRegular}"
+                                                    th:data-offer-precio-oferta="${oferta.precioOferta}"
+                                                    th:data-offer-fecha-inicio="${#temporals.format(oferta.fechaInicio, 'yyyy-MM-dd')}"
+                                                    th:data-offer-fecha-fin="${#temporals.format(oferta.fechaFin, 'yyyy-MM-dd')}"
+                                                    th:data-offer-activa="${oferta.activa}">
+                                                Modificar
+                                            </button>
+                                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal"
+                                                    th:data-offer-id="${oferta.id}">
+                                                Eliminar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(ofertas)}">
+                                        <td colspan="10" class="text-center">No hay ofertas disponibles.</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    <div th:if="${editMessage}" th:classappend="${editSuccess} ? 'alert-success' : 'alert-danger'" class="alert mt-3" role="alert">
+                        <span th:text="${editMessage}"></span>
+                    </div>
+                    <div th:if="${deleteMessage}" th:classappend="${deleteSuccess} ? 'alert-success' : 'alert-danger'" class="alert mt-3" role="alert">
+                        <span th:text="${deleteMessage}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <div class="modal fade" id="editOfferModal" tabindex="-1" aria-labelledby="editOfferModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editOfferModalLabel">Modificar Oferta</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form th:action="@{/admin/ofertas/edit}" method="post" id="editOfferForm">
+                        <div class="modal-body">
+                            <input type="hidden" id="editOfferId" name="id">
+                            <div class="mb-3">
+                                <label for="editCodigoOferta" class="form-label">Código de Oferta:</label>
+                                <input type="text" class="form-control" id="editCodigoOferta" name="codigoOferta" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editNombreOferta" class="form-label">Nombre de la Oferta:</label>
+                                <input type="text" class="form-control" id="editNombreOferta" name="nombreOferta" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editDescripcion" class="form-label">Descripción:</label>
+                                <textarea class="form-control" id="editDescripcion" name="descripcion" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editPrecioRegular" class="form-label">Precio Regular:</label>
+                                <input type="number" step="0.01" class="form-control" id="editPrecioRegular" name="precioRegular" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editPrecioOferta" class="form-label">Precio Oferta:</label>
+                                <input type="number" step="0.01" class="form-control" id="editPrecioOferta" name="precioOferta" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editFechaInicio" class="form-label">Fecha de Inicio:</label>
+                                <input type="date" class="form-control" id="editFechaInicio" name="fechaInicio" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editFechaFin" class="form-label">Fecha de Fin:</label>
+                                <input type="date" class="form-control" id="editFechaFin" name="fechaFin" required>
+                            </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="editActiva" name="activa">
+                                <label class="form-check-label" for="editActiva">Activa</label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Aceptar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
 
-
-
+        <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteConfirmModalLabel">Confirmar Eliminación</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        ¿Estás seguro de que deseas eliminar esta oferta? Esta acción no se puede deshacer.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form th:action="@{/admin/ofertas/delete}" method="post" style="display:inline;">
+                            <input type="hidden" id="deleteOfferId" name="id">
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -35,5 +222,50 @@
             </div>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var editOfferModal = document.getElementById('editOfferModal');
+                editOfferModal.addEventListener('show.bs.modal', function (event) {
+                    var button = event.relatedTarget; // Botón que activó el modal
+                    var id = button.getAttribute('data-offer-id');
+                    var codigo = button.getAttribute('data-offer-codigo');
+                    var nombre = button.getAttribute('data-offer-nombre');
+                    var descripcion = button.getAttribute('data-offer-descripcion');
+                    var precioRegular = button.getAttribute('data-offer-precio-regular');
+                    var precioOferta = button.getAttribute('data-offer-precio-oferta');
+                    var fechaInicio = button.getAttribute('data-offer-fecha-inicio');
+                    var fechaFin = button.getAttribute('data-offer-fecha-fin');
+                    var activa = button.getAttribute('data-offer-activa') === 'true';
+
+                    var modalIdInput = editOfferModal.querySelector('#editOfferId');
+                    var modalCodigoInput = editOfferModal.querySelector('#editCodigoOferta');
+                    var modalNombreInput = editOfferModal.querySelector('#editNombreOferta');
+                    var modalDescripcionInput = editOfferModal.querySelector('#editDescripcion');
+                    var modalPrecioRegularInput = editOfferModal.querySelector('#editPrecioRegular');
+                    var modalPrecioOfertaInput = editOfferModal.querySelector('#editPrecioOferta');
+                    var modalFechaInicioInput = editOfferModal.querySelector('#editFechaInicio');
+                    var modalFechaFinInput = editOfferModal.querySelector('#editFechaFin');
+                    var modalActivaInput = editOfferModal.querySelector('#editActiva');
+
+                    modalIdInput.value = id;
+                    modalCodigoInput.value = codigo;
+                    modalNombreInput.value = nombre;
+                    modalDescripcionInput.value = descripcion;
+                    modalPrecioRegularInput.value = precioRegular;
+                    modalPrecioOfertaInput.value = precioOferta;
+                    modalFechaInicioInput.value = fechaInicio;
+                    modalFechaFinInput.value = fechaFin;
+                    modalActivaInput.checked = activa;
+                });
+
+                var deleteConfirmModal = document.getElementById('deleteConfirmModal');
+                deleteConfirmModal.addEventListener('show.bs.modal', function (event) {
+                    var button = event.relatedTarget; // Botón que activó el modal
+                    var id = button.getAttribute('data-offer-id');
+                    var modalDeleteIdInput = deleteConfirmModal.querySelector('#deleteOfferId');
+                    modalDeleteIdInput.value = id;
+                });
+            });
+        </script>
     </body>
 </html>

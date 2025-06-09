@@ -4,18 +4,188 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Menus</title>
-        <link rel="stylesheet" href="/styleUser.css">
+        <link rel="stylesheet" href="/style.css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     </head>
     <body>
         <div th:replace="~{navbarAdmin :: adminNavbar}"></div>
 
+        <div class="container mt-4">
+            <h2>Gestión de Productos del Menú</h2>
 
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    Añadir Nuevo Producto
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/menu/add}" th:object="${producto}" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="codigo_producto" class="form-label">Código del Producto:</label>
+                            <input type="text" class="form-control" id="codigo_producto" th:field="*{codigoProducto}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre:</label>
+                            <input type="text" class="form-control" id="nombre" th:field="*{nombre}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="precio" class="form-label">Precio:</label>
+                            <input type="number" step="0.01" class="form-control" id="precio" th:field="*{precio}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="stock" class="form-label">Stock:</label>
+                            <input type="number" class="form-control" id="stock" th:field="*{stock}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Descripción:</label>
+                            <textarea class="form-control" id="descripcion" th:field="*{descripcion}" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="imagenFile" class="form-label">Imagen del Producto:</label>
+                            <input type="file" class="form-control" id="imagenFile" name="imagenFile" accept="image/png, image/jpeg">
+                        </div>
+                        <button type="submit" class="btn btn-success">Añadir Producto</button>
+                    </form>
 
+                    <div th:if="${addMessage}" th:classappend="${addSuccess} ? 'alert-success' : 'alert-danger'" class="alert mt-3" role="alert">
+                        <span th:text="${addMessage}"></span>
+                    </div>
+                </div>
+            </div>
 
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    Lista de Productos
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Imagen</th>
+                                    <th>ID</th>
+                                    <th>Código</th>
+                                    <th>Nombre</th>
+                                    <th>Precio</th>
+                                    <th>Stock</th>
+                                    <th>Descripción</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="prod : ${productos}">
+                                    <td>
+                                        <img th:src="@{${prod.rutaImagen}}" alt="Sin Imagen" width="70" th:if="${prod.rutaImagen != null}"/>
+                                        <span th:if="${prod.rutaImagen == null}">N/A</span>
+                                    </td>
+                                    <td th:text="${prod.id}"></td>
+                                    <td th:text="${prod.codigoProducto}"></td>
+                                    <td th:text="${prod.nombre}"></td>
+                                    <td th:text="${#numbers.formatDecimal(prod.precio, 1, 'COMMA', 2, 'POINT')}"></td>
+                                    <td th:text="${prod.stock}"></td>
+                                    <td th:text="${prod.descripcion}"></td>
+                                    <td>
+                                        <button type="button" class="btn btn-warning btn-sm me-2" data-bs-toggle="modal" data-bs-target="#editProductModal"
+                                                th:data-product-id="${prod.id}"
+                                                th:data-product-codigo="${prod.codigoProducto}"
+                                                th:data-product-nombre="${prod.nombre}"
+                                                th:data-product-precio="${prod.precio}"
+                                                th:data-product-stock="${prod.stock}"
+                                                th:data-product-descripcion="${prod.descripcion}"
+                                                th:data-product-imagen="${prod.rutaImagen}">
+                                            Modificar
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal"
+                                                th:data-product-id="${prod.id}">
+                                            Eliminar
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(productos)}">
+                                    <td colspan="8" class="text-center">No hay productos en el menú.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${editMessage}" th:classappend="${editSuccess} ? 'alert-success' : 'alert-danger'" class="alert mt-3" role="alert">
+                        <span th:text="${editMessage}"></span>
+                    </div>
+                    <div th:if="${deleteMessage}" th:classappend="${deleteSuccess} ? 'alert-success' : 'alert-danger'" class="alert mt-3" role="alert">
+                        <span th:text="${deleteMessage}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        
+        <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editProductModalLabel">Modificar Producto</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form th:action="@{/admin/menu/edit}" method="post" id="editProductForm" enctype="multipart/form-data">
+                        <div class="modal-body">
+                            <input type="hidden" id="editProductId" name="id">
+                            <div class="mb-3">
+                                <label for="editCodigoProducto" class="form-label">Código del Producto:</label>
+                                <input type="text" class="form-control" id="editCodigoProducto" name="codigoProducto" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editNombre" class="form-label">Nombre:</label>
+                                <input type="text" class="form-control" id="editNombre" name="nombre" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editPrecio" class="form-label">Precio:</label>
+                                <input type="number" step="0.01" class="form-control" id="editPrecio" name="precio" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editStock" class="form-label">Stock:</label>
+                                <input type="number" class="form-control" id="editStock" name="stock" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editDescripcion" class="form-label">Descripción:</label>
+                                <textarea class="form-control" id="editDescripcion" name="descripcion" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3 text-center">
+                                <label class="form-label">Imagen Actual:</label><br>
+                                <img id="currentProductImage" src="" alt="Imagen del producto" width="150" class="mb-2" style="display: none;"/>
+                                <span id="noCurrentImage" style="display: none;">No hay imagen asignada.</span>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editImagenFile" class="form-label">Cambiar Imagen (opcional):</label>
+                                <input type="file" class="form-control" id="editImagenFile" name="imagenFile" accept="image/png, image/jpeg">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Aceptar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteConfirmModalLabel">Confirmar Eliminación</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        ¿Estás seguro de que deseas eliminar este producto? Esta acción no se puede deshacer.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form th:action="@{/admin/menu/delete}" method="post" style="display:inline;">
+                            <input type="hidden" id="deleteProductId" name="id">
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -34,6 +204,55 @@
                 </div>
             </div>
         </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var editProductModal = document.getElementById('editProductModal');
+                editProductModal.addEventListener('show.bs.modal', function (event) {
+                    var button = event.relatedTarget;
+                    var id = button.getAttribute('data-product-id');
+                    var codigo = button.getAttribute('data-product-codigo');
+                    var nombre = button.getAttribute('data-product-nombre');
+                    var precio = button.getAttribute('data-product-precio');
+                    var stock = button.getAttribute('data-product-stock');
+                    var descripcion = button.getAttribute('data-product-descripcion');
+                    var imagen = button.getAttribute('data-product-imagen');
+
+                    var modalIdInput = editProductModal.querySelector('#editProductId');
+                    var modalCodigoInput = editProductModal.querySelector('#editCodigoProducto');
+                    var modalNombreInput = editProductModal.querySelector('#editNombre');
+                    var modalPrecioInput = editProductModal.querySelector('#editPrecio');
+                    var modalStockInput = editProductModal.querySelector('#editStock');
+                    var modalDescripcionInput = editProductModal.querySelector('#editDescripcion');
+                    var currentImageEl = editProductModal.querySelector('#currentProductImage');
+                    var noImageEl = editProductModal.querySelector('#noCurrentImage');
+
+                    modalIdInput.value = id;
+                    modalCodigoInput.value = codigo;
+                    modalNombreInput.value = nombre;
+                    modalPrecioInput.value = precio;
+                    modalStockInput.value = stock;
+                    modalDescripcionInput.value = descripcion;
+
+                    if (imagen && imagen !== 'null') {
+                        currentImageEl.src = imagen;
+                        currentImageEl.style.display = 'block';
+                        noImageEl.style.display = 'none';
+                    } else {
+                        currentImageEl.style.display = 'none';
+                        noImageEl.style.display = 'block';
+                    }
+                });
+
+                var deleteConfirmModal = document.getElementById('deleteConfirmModal');
+                deleteConfirmModal.addEventListener('show.bs.modal', function (event) {
+                    var button = event.relatedTarget;
+                    var id = button.getAttribute('data-product-id');
+                    var modalDeleteIdInput = deleteConfirmModal.querySelector('#deleteProductId');
+                    modalDeleteIdInput.value = id;
+                });
+            });
+        </script>
     </body>
 </html>
