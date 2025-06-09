@@ -5,20 +5,21 @@ import com.UTP.Delivery.Integrador.Repository.AdminRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class AdminService {
 
     @Autowired
     private AdminRepository adminRepository;
 
-    private static final String ADMIN_EMAIL = "Admin123@utp.edu.pe";
-    private static final String ADMIN_PASSWORD = "admin123";
-
     public Admin loginAdmin(String correo, String contrasena) {
-        if (!ADMIN_EMAIL.equals(correo) || !ADMIN_PASSWORD.equals(contrasena)) {
+        Optional<Admin> adminOptional = adminRepository.findByCorreoAndContrasena(correo, contrasena);
+
+        if (adminOptional.isPresent()) {
+            return adminOptional.get();
+        } else {
             throw new IllegalArgumentException("Credenciales de administrador incorrectas.");
         }
-        return adminRepository.findByCorreoAndContrasena(correo, contrasena)
-                .orElseThrow(() -> new IllegalArgumentException("Credenciales de administrador incorrectas."));
     }
 }
