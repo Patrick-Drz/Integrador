@@ -1,0 +1,27 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+.navbar-nav .btn.btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+
+.navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.95rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    transition: color 0.2s ease-in-out;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #fff;
+}
+
+.navbar-brand {
+    padding: 0 15px;
+}
+
