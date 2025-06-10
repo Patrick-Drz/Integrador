@@ -9,7 +9,6 @@ public class MvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // El patrón /uploads/** mapea a la carpeta 'uploads' en el directorio raíz del proyecto
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:./uploads/");
     }
