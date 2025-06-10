@@ -12,26 +12,19 @@ public class MainController {
     public String redirectToLogin() {
         return "redirect:/login";
     }
-
+    //Métodos User
     @GetMapping("/indexUsuario")
     public String indexUsuarioPage() {
         return "indexUsuario"; //
     }
-
     //@GetMapping("/compraUsuario")
-    //public String compraUsuarioPage() {
-    //    return "compraUsuario";
-    //}
-
+    //public String compraUsuarioPage() { return "compraUsuario"; }
     //@GetMapping("/aulaUsuario")
     //public String aulaUsuarioPage() {return "aulaUsuario"; }
-
     @GetMapping("/ofertasUsuario")
     public String ofertasUsuarioPage() {return "ofertasUsuario"; }
-
     @GetMapping("/carritoUsuario")
     public String carritoUsuarioPage() { return "carritoUsuario"; }
-
     @GetMapping("/sobreNosotrosUsuario")
     public String sobreNosotrosUsuarioPage() {
         return "sobreNosotrosUsuario";
@@ -39,24 +32,13 @@ public class MainController {
 
     //Métodos Admin
     @GetMapping("/indexAdmin")
-    public String indexAdminPage() {
-        return "indexAdmin"; // Corresponde a indexAdmin.html
-    }
+    public String indexAdminPage() { return "indexAdmin"; }
     //@GetMapping("/menusAdmin")
-    //public String menusAdminPage() { return "menusAdmin"; // Corresponde a menusAdmin.html
-    //}
-    @GetMapping("/pedidosAdmin")
-    public String pedidosAdminPage() {
-        return "pedidosAdmin"; // Corresponde a pedidosAdmin.html
-    }
+    //public String menusAdminPage() { return "menusAdmin"; }
     //@GetMapping("/ofertasAdmin")
-    //public String ofertasAdminPage() { return "ofertasAdmin"; // Corresponde a ofertasAdmin.html }
+    //public String ofertasAdminPage() { return "ofertasAdmin";  }
     @GetMapping("/reclamacionesAdmin")
-    public String reclamacionesAdminPage() {
-        return "reclamacionesAdmin"; // Corresponde a reclamacionesAdmin.html
-    }
+    public String reclamacionesAdminPage() { return "reclamacionesAdmin"; }
     @GetMapping("/ventasAdmin")
-    public String ventasAdminPage() {
-        return "ventasAdmin"; // Corresponde a ventasAdmin.html
-    }
+    public String ventasAdminPage() { return "ventasAdmin"; }
 }

@@ -23,7 +23,7 @@ public class Carrito {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_usuario", nullable = true) // Nombre de la columna FK en la tabla 'carritos'
+    @JoinColumn(name = "id_usuario", nullable = true)
     private User usuario;
 
     @Column(name = "estado", nullable = false)
@@ -36,7 +36,7 @@ public class Carrito {
     private LocalDateTime fechaActualizacion;
 
     @OneToMany(mappedBy = "carrito", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<ItemCarrito> items = new HashSet<>(); // Usa Set para evitar duplicados y facilitar la búsqueda
+    private Set<ItemCarrito> items = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {

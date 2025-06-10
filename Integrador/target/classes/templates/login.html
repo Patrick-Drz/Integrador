@@ -80,10 +80,9 @@
 
         <script th:inline="javascript">
             /*<![CDATA[*/
-            // Estos valores vienen del RedirectAttributes del controlador (login o logout)
             var loginMessage = /*[[${loginMessage}]]*/ null;
-            var loginSuccess = /*[[${loginSuccess}]]*/ null; // Booleano para saber si fue éxito o error
-            var redirectUrl = /*[[${redirectUrl}]]*/ null; // URL a la que redirigir después de la modal
+            var loginSuccess = /*[[${loginSuccess}]]*/ null;
+            var redirectUrl = /*[[${redirectUrl}]]*/ null;
 
             console.log("Thymeleaf login script loaded.");
             console.log("Login Message (from FlashAttribute):", loginMessage);
@@ -91,10 +90,8 @@
             console.log("Login Redirect URL (from FlashAttribute):", redirectUrl);
 
 
-            if (loginMessage) { // Si hay un mensaje, significa que venimos de un login o logout POST
+            if (loginMessage) {
                 console.log("Calling showModal for Login/Logout message.");
-                // Llama a la función showModal con los datos recibidos
-                // Pasa 'loginSuccess === true' para convertir el string 'true'/'false' a booleano
                 showModal(loginMessage, loginSuccess === true, redirectUrl);
             }
             /*]]>*/

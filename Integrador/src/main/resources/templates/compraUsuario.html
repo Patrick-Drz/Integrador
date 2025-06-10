@@ -1,169 +1,258 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Comprar</title>
-        <link rel="stylesheet" href="/style.css">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    </head>
-    <body>
-        <div th:replace="~{navbarUser :: userNavbar}"></div>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprar</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  </head>
+  <body>
+  <div th:replace="~{navbarUser :: userNavbar}"></div>
 
-        <div class="container mt-4">
-            <h2 class="text-center mb-4">¡Explora y Compra!</h2>
+    <div class="container mt-4">
+      <h2 class="text-center mb-4">¡Explora y Compra!</h2>
 
-            <h3 class="mb-3">Nuestros Productos</h3>
-            <div th:if="${#lists.isEmpty(productos)}" class="alert alert-info text-center" role="alert">
-                No hay productos disponibles en este momento.
+      <h3 class="mb-3">Nuestros Productos</h3>
+      <div th:if="${#lists.isEmpty(productos)}" class="alert alert-info text-center" role="alert">
+        No hay productos disponibles en este momento.
+      </div>
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
+        <div class="col" th:each="producto : ${productos}">
+          <div class="card h-100 product-card">
+            <img th:if="${producto.rutaImagen != null}" th:src="@{${producto.rutaImagen}}" class="card-img-top" alt="Imagen del Producto" style="height: 200px; object-fit: cover;">
+            <img th:if="${producto.rutaImagen == null}" th:src="@{/assets/img/default-product.png}" class="card-img-top" alt="Imagen no disponible" style="height: 200px; object-fit: cover;">
+
+            <div class="card-body">
+              <h5 class="card-title" th:text="${producto.nombre}">Nombre del Producto</h5>
+              <p class="card-text text-muted" th:text="${producto.descripcion}">Descripción corta del producto.</p>
+              <p class="price-text">S/ <span th:text="${#numbers.formatDecimal(producto.precio, 1, 2)}">10.00</span></p>
+              <p class="card-text">Stock: <span th:text="${producto.stock}">100</span></p>
             </div>
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
-                <div class="col" th:each="producto : ${productos}">
-                    <div class="card h-100 product-card">
-                        <img th:if="${producto.rutaImagen != null}" th:src="@{${producto.rutaImagen}}" class="card-img-top" alt="Imagen del Producto" style="height: 200px; object-fit: cover;">
-                        <img th:if="${producto.rutaImagen == null}" th:src="@{/assets/img/default-product.png}" class="card-img-top" alt="Imagen no disponible" style="height: 200px; object-fit: cover;">
-
-                        <div class="card-body">
-                            <h5 class="card-title" th:text="${producto.nombre}">Nombre del Producto</h5>
-                            <p class="card-text text-muted" th:text="${producto.descripcion}">Descripción corta del producto.</p>
-                            <p class="price-text">S/ <span th:text="${#numbers.formatDecimal(producto.precio, 1, 2)}">10.00</span></p>
-                            <p class="card-text">Stock: <span th:text="${producto.stock}">100</span></p>
-                        </div>
-                        <div class="card-footer">
-                            <form class="add-to-cart-form d-flex align-items-center">
-                                <input type="hidden" name="productoId" th:value="${producto.id}">
-                                <div class="input-group input-group-sm me-2" style="width: 100px;">
-                                    <label for="cantidadProducto" class="visually-hidden">Cantidad</label>
-                                    <input type="number" class="form-control" id="cantidadProducto" name="cantidad" value="1" min="1" th:max="${producto.stock}" required>
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-sm" th:disabled="${producto.stock le 0}">
-                                    <i class="fas fa-cart-plus"></i> Añadir
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+            <div class="card-footer">
+              <form class="add-to-cart-form d-flex align-items-center">
+                <input type="hidden" name="productoId" th:value="${producto.id}">
+                <div class="input-group input-group-sm me-2" style="width: 100px;">
+                  <label for="cantidadProducto" class="visually-hidden">Cantidad</label>
+                  <input type="number" class="form-control" id="cantidadProducto" name="cantidad" value="1" min="1" th:max="${producto.stock}" required>
                 </div>
+                <button type="submit" class="btn btn-primary btn-sm" th:disabled="${producto.stock le 0}">
+                  <i class="fas fa-cart-plus"></i> Añadir
+                </button>
+              </form>
             </div>
+          </div>
+        </div>
+      </div>
 
-            <h3 class="mb-3">Ofertas Especiales</h3>
-            <div th:if="${#lists.isEmpty(ofertas)}" class="alert alert-info text-center" role="alert">
-                No hay ofertas disponibles en este momento.
+      <h3 class="mb-3">Ofertas Especiales</h3>
+      <div th:if="${#lists.isEmpty(ofertas)}" class="alert alert-info text-center" role="alert">
+        No hay ofertas disponibles en este momento.
+      </div>
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
+        <div class="col" th:each="oferta : ${ofertas}">
+          <div class="card h-100 product-card">
+            <div class="card-body">
+              <h5 class="card-title" th:text="${oferta.nombreOferta}">Nombre de la Oferta</h5>
+              <p class="card-text text-muted" th:text="${oferta.descripcion}">Descripción corta de la oferta.</p>
+              <p>
+                <span class="regular-price">S/ <span th:text="${#numbers.formatDecimal(oferta.precioRegular, 1, 2)}">15.00</span></span>
+                <span class="price-text ms-2">S/ <span th:text="${#numbers.formatDecimal(oferta.precioOferta, 1, 2)}">10.00</span></span>
+              </p>
+              <p class="card-text text-success" th:if="${oferta.activa}">¡Oferta activa!</p>
+              <p class="card-text text-danger" th:unless="${oferta.activa}">Oferta inactiva</p>
+              <p class="card-text"><small>Válida hasta: <span th:text="${#temporals.format(oferta.fechaFin, 'dd-MM-yyyy')}"></span></small></p>
             </div>
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
-                <div class="col" th:each="oferta : ${ofertas}">
-                    <div class="card h-100 product-card">
-                        <div class="card-body">
-                            <h5 class="card-title" th:text="${oferta.nombreOferta}">Nombre de la Oferta</h5>
-                            <p class="card-text text-muted" th:text="${oferta.descripcion}">Descripción corta de la oferta.</p>
-                            <p>
-                                <span class="regular-price">S/ <span th:text="${#numbers.formatDecimal(oferta.precioRegular, 1, 2)}">15.00</span></span>
-                                <span class="price-text ms-2">S/ <span th:text="${#numbers.formatDecimal(oferta.precioOferta, 1, 2)}">10.00</span></span>
-                            </p>
-                            <p class="card-text text-success" th:if="${oferta.activa}">¡Oferta activa!</p>
-                            <p class="card-text text-danger" th:unless="${oferta.activa}">Oferta inactiva</p>
-                            <p class="card-text"><small>Válida hasta: <span th:text="${#temporals.format(oferta.fechaFin, 'dd-MM-yyyy')}"></span></small></p>
-                        </div>
-                        <div class="card-footer">
-                            <form class="add-to-cart-form d-flex align-items-center">
-                                <input type="hidden" name="ofertaId" th:value="${oferta.id}">
-                                <div class="input-group input-group-sm me-2" style="width: 100px;">
-                                    <label for="cantidadOferta" class="visually-hidden">Cantidad</label>
-                                    <input type="number" class="form-control" id="cantidadOferta" name="cantidad" value="1" min="1" required>
-                                </div>
-                                <button type="submit" class="btn btn-success btn-sm" th:disabled="${!oferta.activa}">
-                                    <i class="fas fa-cart-plus"></i> Añadir
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+            <div class="card-footer">
+              <form class="add-to-cart-form d-flex align-items-center">
+                <input type="hidden" name="ofertaId" th:value="${oferta.id}">
+                <div class="input-group input-group-sm me-2" style="width: 100px;">
+                  <label for="cantidadOferta" class="visually-hidden">Cantidad</label>
+                  <input type="number" class="form-control" id="cantidadOferta" name="cantidad" value="1" min="1" required>
                 </div>
+                <button type="submit" class="btn btn-success btn-sm" th:disabled="${!oferta.activa}">
+                  <i class="fas fa-cart-plus"></i> Añadir
+                </button>
+              </form>
             </div>
+          </div>
         </div>
+      </div>
+    </div>
 
-        <div id="myModal" class="modal modal-hidden">
-            <div class="modal-content">
-                <span class="close-button">&times;</span>
-                <p id="modalMessage"></p>
-                <button id="modalActionButton" class="modal-button">OK</button>
-            </div>
+    <div id="myModal" class="modal modal-hidden">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <p id="modalMessage"></p>
+        <button id="modalActionButton" class="modal-button">OK</button>
+      </div>
+    </div>
+
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="logoutModalLabel">Confirmar Cierre de Sesión</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            ¿Estás seguro de que deseas cerrar tu sesión?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <a th:href="@{/logout}" class="btn btn-danger">Aceptar</a>
+          </div>
         </div>
+      </div>
+    </div>
 
-        <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="logoutModalLabel">Confirmar Cierre de Sesión</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        ¿Estás seguro de que deseas cerrar tu sesión?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <a th:href="@{/logout}" class="btn btn-danger">Aceptar</a>
-                    </div>
-                </div>
-            </div>
+    <div class="modal fade" id="reclamacionModal" tabindex="-1" aria-labelledby="reclamacionModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="reclamacionModalLabel"><i class="fa-solid fa-file-alt"></i> Formulario de Reclamación</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="reclamacionForm">
+              <div class="mb-3">
+                <label for="nombreCompletoReclamacion" class="form-label">Nombre Completo:</label>
+                <input type="text" class="form-control" id="nombreCompletoReclamacion" name="nombreCompleto" required>
+              </div>
+              <div class="mb-3">
+                <label for="correoReclamacion" class="form-label">Correo Electrónico:</label>
+                <input type="email" class="form-control" id="correoReclamacion" name="correo" required>
+              </div>
+              <div class="mb-3">
+                <label for="tipoReclamacion" class="form-label">Tipo de Reclamación:</label>
+                <select class="form-select" id="tipoReclamacion" name="tipoReclamacion" required>
+                  <option value="">Seleccione...</option>
+                  <option value="QUEJA">Queja</option>
+                  <option value="SUGERENCIA">Sugerencia</option>
+                  <option value="RECLAMACION">Reclamación</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="descripcionReclamacion" class="form-label">Descripción:</label>
+                <textarea class="form-control" id="descripcionReclamacion" name="descripcion" rows="4" required></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-paper-plane"></i> Enviar Reclamación</button>
+              <div id="reclamacionMessage" class="mt-3 text-center" style="font-weight: bold;"></div>
+            </form>
+          </div>
         </div>
+      </div>
+    </div>
+    <div th:replace="~{footerUser :: appFooter}"></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+    <script src="/script.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          const addToCartForms = document.querySelectorAll('.add-to-cart-form');
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
-        <script src="/script.js"></script>
-        <script>
-            // JS específico para la página de Compra
-            document.addEventListener('DOMContentLoaded', function () {
-                // Obtener todos los formularios con la clase 'add-to-cart-form'
-                const addToCartForms = document.querySelectorAll('.add-to-cart-form');
+          addToCartForms.forEach(form => {
+              form.addEventListener('submit', async function(event) {
+                  event.preventDefault(); // Prevenir el envío normal del formulario
 
-                addToCartForms.forEach(form => {
-                    form.addEventListener('submit', async function (event) {
-                        event.preventDefault(); // Prevenir el envío normal del formulario
+                  const formData = new FormData(form);
+                  const urlSearchParams = new URLSearchParams();
+                  for (const pair of formData) {
+                      urlSearchParams.append(pair[0], pair[1]);
+                  }
 
-                        // Obtener los datos del formulario
-                        const formData = new FormData(form);
-                        const urlSearchParams = new URLSearchParams();
-                        for (const pair of formData) {
-                            urlSearchParams.append(pair[0], pair[1]);
+                  console.log("Enviando datos al carrito (AJAX):", urlSearchParams.toString());
+
+                  try {
+                      const response = await fetch('/user/carrito/add', {
+                          method: 'POST',
+                          headers: {
+                              'Content-Type': 'application/x-www-form-urlencoded'
+                          },
+                          body: urlSearchParams.toString()
+                      });
+
+                      const data = await response.json();
+                      console.log("Respuesta AJAX del carrito:", data);
+
+                      if (typeof showModal === 'function') {
+                          showModal(data.message, data.success, data.redirectUrl || null);
+                      } else {
+                          console.error("ERROR: showModal function not found in script.js.");
+                          alert(data.message);
+                          if (data.redirectUrl) {
+                              window.location.href = data.redirectUrl;
+                          }
+                      }
+
+                  } catch (error) {
+                      console.error('Error al añadir al carrito mediante AJAX:', error);
+                      if (typeof showModal === 'function') {
+                         showModal('Error al conectar con el servidor. Inténtelo de nuevo.', false, null);
+                      } else {
+                         alert('Error al conectar con el servidor. Inténtelo de nuevo.');
+                      }
+                  }
+              });
+          });
+      });
+             console.log("Script de formulario de reclamación cargado (en página principal).");
+            const reclamacionForm = document.getElementById('reclamacionForm');
+            const reclamacionMessageDiv = document.getElementById('reclamacionMessage');
+
+            function displayReclamacionMessage(message, isSuccess) {
+                if (reclamacionMessageDiv) {
+                    reclamacionMessageDiv.textContent = message;
+                    reclamacionMessageDiv.classList.remove('text-success', 'text-danger');
+                    if (isSuccess) {
+                        reclamacionMessageDiv.classList.add('text-success');
+                    } else {
+                        reclamacionMessageDiv.classList.add('text-danger');
+                    }
+                    setTimeout(() => {
+                        reclamacionMessageDiv.textContent = '';
+                        reclamacionMessageDiv.classList.remove('text-success', 'text-danger');
+                    }, 5000);
+                }
+            }
+
+            if (reclamacionForm) {
+                reclamacionForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    console.log("Evento submit de reclamacionForm disparado.");
+
+                    if (reclamacionMessageDiv) {
+                        reclamacionMessageDiv.textContent = '';
+                        reclamacionMessageDiv.classList.remove('text-success', 'text-danger');
+                    }
+
+                    const formData = new FormData(reclamacionForm);
+                    const jsonData = {};
+                    formData.forEach((value, key) => { jsonData[key] = value; });
+
+                    try {
+                        const response = await fetch('/user/reclamacion/enviar', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', },
+                            body: JSON.stringify(jsonData),
+                        });
+                        const data = await response.json();
+                        console.log("Respuesta AJAX de reclamación:", data);
+
+                        displayReclamacionMessage(data.message, data.success);
+
+                        if (data.success) {
+                            reclamacionForm.reset(); // Limpia el formulario si es exitoso
                         }
 
-                        console.log("Enviando datos al carrito (AJAX):", urlSearchParams.toString());
-
-                        try {
-                            const response = await fetch('/user/carrito/add', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/x-www-form-urlencoded'
-                                },
-                                body: urlSearchParams.toString()
-                            });
-
-                            const data = await response.json();
-                            console.log("Respuesta AJAX del carrito:", data);
-
-                            // Asumiendo que 'showModal' está definido en script.js
-                            if (typeof showModal === 'function') {
-                                showModal(data.message, data.success, data.redirectUrl || null);
-                            } else {
-                                console.error("ERROR: showModal function not found in script.js.");
-                                // Fallback para mostrar el mensaje si la modal no funciona
-                                alert(data.message);
-                                if (data.redirectUrl) {
-                                    window.location.href = data.redirectUrl;
-                                }
-                            }
-
-                        } catch (error) {
-                            console.error('Error al añadir al carrito mediante AJAX:', error);
-                            // Fallback para mostrar el error
-                            if (typeof showModal === 'function') {
-                                showModal('Error al conectar con el servidor. Inténtelo de nuevo.', false, null);
-                            } else {
-                                alert('Error al conectar con el servidor. Inténtelo de nuevo.');
-                            }
-                        }
-                    });
+                    } catch (error) {
+                        console.error('Error al enviar la reclamación:', error);
+                        displayReclamacionMessage('Hubo un error al enviar tu reclamación. Inténtalo de nuevo más tarde.', false);
+                    }
                 });
-            });
-        </script>
-    </body>
+            } else {
+                console.error("ERROR: reclamacionForm no encontrado en la página. El listener de submit no se adjuntó.");
+            }
+    </script>
+  </body>
 </html>

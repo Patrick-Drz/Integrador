@@ -1,16 +1,22 @@
 package com.UTP.Delivery.Integrador.Controller;
 
-import com.UTP.Delivery.Integrador.Model.Oferta;
-import com.UTP.Delivery.Integrador.Model.OrdenVenta;
 import com.UTP.Delivery.Integrador.Model.Producto;
-import com.UTP.Delivery.Integrador.Service.OfertaService;
+import com.UTP.Delivery.Integrador.Model.Reclamacion;
 import com.UTP.Delivery.Integrador.Service.ProductoService;
+import com.UTP.Delivery.Integrador.Model.Oferta;
+import com.UTP.Delivery.Integrador.Service.OfertaService;
+import com.UTP.Delivery.Integrador.Model.OrdenVenta;
+import com.UTP.Delivery.Integrador.Service.ReclamacionService;
 import com.UTP.Delivery.Integrador.Service.VentaService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -36,6 +42,9 @@ public class AdminController {
     @Autowired
     private VentaService ventaService;
 
+    @Autowired
+    private ReclamacionService reclamacionService;
+
     private boolean isAdminLoggedIn(HttpSession session) {
         Boolean isAdmin = (Boolean) session.getAttribute("isAdmin");
         return isAdmin != null && isAdmin;
@@ -50,6 +59,8 @@ public class AdminController {
         return "indexAdmin";
     }
 
+
+    // Menus
     @GetMapping("/menusAdmin")
     public String showMenusAdmin(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         if (!isAdminLoggedIn(session)) {
@@ -57,8 +68,10 @@ public class AdminController {
             return "redirect:/login";
         }
         model.addAttribute("producto", new Producto());
+
         List<Producto> productos = productoService.getAllProductos();
         model.addAttribute("productos", productos);
+
         return "menusAdmin";
     }
 
@@ -149,7 +162,7 @@ public class AdminController {
     }
 
     @PostMapping("/menu/delete")
-    public String deleteProducto(@RequestParam("id") Long id, RedirectAttributes redirectAttributes, HttpSession session) {
+    public String deleteProducto(@ModelAttribute("id") Long id, RedirectAttributes redirectAttributes, HttpSession session) {
         if (!isAdminLoggedIn(session)) {
             redirectAttributes.addFlashAttribute("errorMessage", "Acceso denegado.");
             return "redirect:/login";
@@ -166,7 +179,7 @@ public class AdminController {
         return "redirect:/admin/menusAdmin";
     }
 
-    // El resto de los métodos para Ofertas y Ventas no necesitan cambios
+    // Ofertas
     @GetMapping("/ofertasAdmin")
     public String showOfertasAdmin(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         if (!isAdminLoggedIn(session)) {
@@ -174,8 +187,10 @@ public class AdminController {
             return "redirect:/login";
         }
         model.addAttribute("oferta", new Oferta());
+
         List<Oferta> ofertas = ofertaService.getAllOfertas();
         model.addAttribute("ofertas", ofertas);
+
         return "ofertasAdmin";
     }
 
@@ -210,8 +225,11 @@ public class AdminController {
             ofertaService.updateOferta(oferta);
             redirectAttributes.addFlashAttribute("editMessage", "Oferta modificada correctamente.");
             redirectAttributes.addFlashAttribute("editSuccess", true);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("editMessage", "Error al modificar oferta: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("editSuccess", false);
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("editMessage", "Error inesperado al modificar oferta: " + e.getMessage());
             redirectAttributes.addFlashAttribute("editSuccess", false);
             e.printStackTrace();
         }
@@ -219,7 +237,7 @@ public class AdminController {
     }
 
     @PostMapping("/ofertas/delete")
-    public String deleteOferta(@RequestParam("id") Long id, RedirectAttributes redirectAttributes, HttpSession session) {
+    public String deleteOferta(@ModelAttribute("id") Long id, RedirectAttributes redirectAttributes, HttpSession session) {
         if (!isAdminLoggedIn(session)) {
             redirectAttributes.addFlashAttribute("errorMessage", "Acceso denegado.");
             return "redirect:/login";
@@ -235,7 +253,7 @@ public class AdminController {
         }
         return "redirect:/admin/ofertasAdmin";
     }
-    
+
     @GetMapping("/ventas")
     public String showVentasAdmin(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         if (!isAdminLoggedIn(session)) {
@@ -244,10 +262,38 @@ public class AdminController {
         }
         try {
             List<OrdenVenta> ordenesVenta = ventaService.getAllOrdenesVenta();
+
+            System.out.println("DEBUG: Número de órdenes de venta recuperadas: " + ordenesVenta.size());
+            ordenesVenta.forEach(orden -> {
+                String userName = (orden.getUsuario() != null) ? orden.getUsuario().getNombreCompleto() : "N/A";
+                String ubicacion = (orden.getUbicacionEntrega() != null) ?
+                        orden.getUbicacionEntrega().getPiso() + " - " + orden.getUbicacionEntrega().getCodigoAula() : "N/A";
+                System.out.println("  Orden ID: " + orden.getId() + ", Total: " + orden.getTotal() +
+                        ", Usuario: " + userName +
+                        ", Ubicación: " + ubicacion +
+                        ", Items: " + (orden.getItems() != null ? orden.getItems().size() : "0"));
+            });
             model.addAttribute("ordenesVenta", ordenesVenta);
             return "ventasAdmin";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error al cargar el historial de ventas: " + e.getMessage());
+            e.printStackTrace();
+            return "redirect:/admin/dashboard";
+        }
+    }
+
+    @GetMapping("/reclamaciones")
+    public String showReclamacionesAdmin(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+        if (!isAdminLoggedIn(session)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Acceso denegado. Solo administradores.");
+            return "redirect:/login";
+        }
+        try {
+            List<Reclamacion> reclamaciones = reclamacionService.getAllReclamaciones();
+            model.addAttribute("reclamaciones", reclamaciones);
+            return "reclamacionesAdmin";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al cargar las reclamaciones: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/dashboard";
         }

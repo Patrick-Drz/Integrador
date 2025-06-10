@@ -22,7 +22,6 @@ public class ProductoService {
     }
 
     public Producto saveProducto(Producto producto) {
-        // Aquí puedes añadir validaciones adicionales antes de guardar
         return productoRepository.save(producto);
     }
 

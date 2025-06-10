@@ -1,122 +1,123 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Historial de Ventas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="/style.css">
-</head>
-<body>
-<div th:replace="~{navbarAdmin :: adminNavbar}"></div>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Historial de Ventas</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+        <link rel="stylesheet" href="/style.css">
+    </head>
+    <body>
+        <div th:replace="~{navbarAdmin :: adminNavbar}"></div>
 
-<div class="container mt-4">
-    <h2><i class="fa-solid fa-receipt"></i> Historial de Ventas</h2>
+        <div class="container mt-4">
+            <h2><i class="mb-4"></i> Historial de Ventas</h2>
 
-    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-        <span th:text="${errorMessage}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
 
-    <div th:if="${#lists.isEmpty(ordenesVenta)}" class="alert alert-info text-center mt-5">
-        <p><i class="fa-solid fa-info-circle"></i> No hay órdenes de venta registradas.</p>
-    </div>
+            <div th:if="${#lists.isEmpty(ordenesVenta)}" class="alert alert-info text-center mt-5">
+                <p><i class="fa-solid fa-info-circle"></i> No hay órdenes de venta registradas.</p>
+            </div>
 
-    <div th:unless="${#lists.isEmpty(ordenesVenta)}">
-        <div class="table-responsive">
-            <table class="table table-striped table-hover align-middle">
-                <thead class="table-dark">
-                <tr>
-                    <th>ID Orden</th>
-                    <th>Fecha</th>
-                    <th>Usuario</th>
-                    <th>Ubicación Entrega</th>
-                    <th>Total</th>
-                    <th>Detalles</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="orden : ${ordenesVenta}">
-                    <td th:text="${orden.id}">1</td>
-                    <td th:text="${#temporals.format(orden.fechaOrden, 'dd/MM/yyyy HH:mm')}">01/01/2025 10:00</td>
-                    <td th:text="${orden.usuario != null ? orden.usuario.nombreCompleto + ' (' + orden.usuario.codigoEstudiante + ')' : 'Usuario Desconocido'}">Nombre Usuario (Codigo)</td>
-                    <td th:text="${orden.ubicacionEntrega != null ? orden.ubicacionEntrega.piso + ' - ' + orden.ubicacionEntrega.codigoAula : 'No especificada'}">Piso - Aula</td>
-                    <td>S/. <span th:text="${#numbers.formatDecimal(orden.total, 1, 2)}">0.00</span></td>
-                    <td>
-                        <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" th:data-bs-target="${'#ordenModal' + orden.id}">
-                            Ver Detalles
-                        </button>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div th:each="orden : ${ordenesVenta}" class="modal fade" th:id="${'ordenModal' + orden.id}" tabindex="-1" th:aria-labelledby="${'ordenModalLabel' + orden.id}" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" th:id="${'ordenModalLabel' + orden.id}">Detalles de la Orden #<span th:text="${orden.id}"></span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            <div th:unless="${#lists.isEmpty(ordenesVenta)}">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>ID Orden</th>
+                            <th>Fecha</th>
+                            <th>Usuario</th>
+                            <th>Ubicación Entrega</th>
+                            <th>Total</th>
+                            <th>Detalles</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="orden : ${ordenesVenta}">
+                            <td th:text="${orden.id}">1</td>
+                            <td th:text="${#temporals.format(orden.fechaOrden, 'dd/MM/yyyy HH:mm')}">01/01/2025 10:00</td>
+                            <td th:text="${orden.usuario != null ? orden.usuario.nombreCompleto + ' (' + orden.usuario.codigoEstudiante + ')' : 'Usuario Desconocido'}">Nombre Usuario (Codigo)</td>
+                            <td th:text="${orden.ubicacionEntrega != null ? orden.ubicacionEntrega.piso + ' - ' + orden.ubicacionEntrega.codigoAula : 'No especificada'}">Piso - Aula</td>
+                            <td>S/. <span th:text="${#numbers.formatDecimal(orden.total, 1, 2)}">0.00</span></td>
+                            <td>
+                                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" th:data-bs-target="${'#ordenModal' + orden.id}">
+                                    Ver Detalles
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="modal-body">
-                    <p><strong>Usuario:</strong> <span th:text="${orden.usuario != null ? orden.usuario.nombreCompleto : 'N/A'}"></span></p>
-                    <p><strong>Correo:</strong> <span th:text="${orden.usuario != null ? orden.usuario.correo : 'N/A'}"></span></p>
-                    <p><strong>Fecha de Orden:</strong> <span th:text="${#temporals.format(orden.fechaOrden, 'dd/MM/yyyy HH:mm')}"></span></p>
-                    <p><strong>Ubicación de Entrega:</strong> <span th:text="${orden.ubicacionEntrega != null ? orden.ubicacionEntrega.piso + ' - ' + orden.ubicacionEntrega.codigoAula : 'No especificada'}"></span></p>
-                    <p><strong>Total de la Orden:</strong> S/. <span th:text="${#numbers.formatDecimal(orden.total, 1, 2)}"></span></p>
+            </div>
 
-                    <h6 class="mt-4">Ítems de la Orden:</h6>
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-sm">
-                            <thead>
-                            <tr>
-                                <th>Tipo</th>
-                                <th>Nombre</th>
-                                <th>Cantidad</th>
-                                <th>Precio Unitario</th>
-                                <th>Subtotal</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="detalle : ${orden.items}">
-                                <td><span th:text="${detalle.producto != null ? 'Producto' : (detalle.oferta != null ? 'Oferta' : 'Desconocido')}"></span></td>
-                                <td><span th:text="${detalle.producto != null ? detalle.producto.nombre : (detalle.oferta != null ? detalle.oferta.nombreOferta : 'N/A')}"></span></td>
-                                <td><span th:text="${detalle.cantidad}"></span></td>
-                                <td>S/. <span th:text="${#numbers.formatDecimal(detalle.precioUnitarioAlMomento, 1, 2)}"></span></td>
-                                <td>S/. <span th:text="${#numbers.formatDecimal(detalle.subtotal, 1, 2)}"></span></td>
-                            </tr>
-                            </tbody>
-                        </table>
+            <div th:each="orden : ${ordenesVenta}" class="modal fade" th:id="${'ordenModal' + orden.id}" tabindex="-1" th:aria-labelledby="${'ordenModalLabel' + orden.id}" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" th:id="${'ordenModalLabel' + orden.id}">Detalles de la Orden #<span th:text="${orden.id}"></span></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>Usuario:</strong> <span th:text="${orden.usuario != null ? orden.usuario.nombreCompleto : 'N/A'}"></span></p>
+                            <p><strong>Correo:</strong> <span th:text="${orden.usuario != null ? orden.usuario.correo : 'N/A'}"></span></p>
+                            <p><strong>Fecha de Orden:</strong> <span th:text="${#temporals.format(orden.fechaOrden, 'dd/MM/yyyy HH:mm')}"></span></p>
+                            <p><strong>Ubicación de Entrega:</strong> <span th:text="${orden.ubicacionEntrega != null ? orden.ubicacionEntrega.piso + ' - ' + orden.ubicacionEntrega.codigoAula : 'No especificada'}"></span></p>
+                            <p><strong>Total de la Orden:</strong> S/. <span th:text="${#numbers.formatDecimal(orden.total, 1, 2)}"></span></p>
+
+                            <h6 class="mt-4">Ítems de la Orden:</h6>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-sm">
+                                    <thead>
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Nombre</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio Unitario</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="detalle : ${orden.items}">
+                                        <td><span th:text="${detalle.producto != null ? 'Producto' : (detalle.oferta != null ? 'Oferta' : 'Desconocido')}"></span></td>
+                                        <td><span th:text="${detalle.producto != null ? detalle.producto.nombre : (detalle.oferta != null ? detalle.oferta.nombreOferta : 'N/A')}"></span></td>
+                                        <td><span th:text="${detalle.cantidad}"></span></td>
+                                        <td>S/. <span th:text="${#numbers.formatDecimal(detalle.precioUnitarioAlMomento, 1, 2)}"></span></td>
+                                        <td>S/. <span th:text="${#numbers.formatDecimal(detalle.subtotal, 1, 2)}"></span></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+
+        <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="logoutModalLabel">Confirmar Cierre de Sesión</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        ¿Estás seguro de que deseas cerrar tu sesión?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <a th:href="@{/logout}" class="btn btn-danger">Aceptar</a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-
-<div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="logoutModalLabel">Confirmar Cierre de Sesión</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                ¿Estás seguro de que deseas cerrar tu sesión?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <a th:href="@{/logout}" class="btn btn-danger">Aceptar</a>
-            </div>
-        </div>
-    </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+        <div th:replace="~{footerAdmin :: adminAppFooter}"></div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
 </html>

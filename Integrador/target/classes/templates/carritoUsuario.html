@@ -37,33 +37,33 @@
             <hr>
             <div class="ubicacion-info mt-4">
                 <h4><i class="fa-solid fa-location-dot"></i> Mi Ubicación de Entrega</h4>
-                <div th:if="${ubicacionUsuario != null}">
-                    <p><strong>Piso:</strong> <span th:text="${ubicacionUsuario.piso}"></span></p>
+                <div id="ubicacionDetalle" th:if="${ubicacionUsuario != null}"> <p><strong>Piso:</strong> <span th:text="${ubicacionUsuario.piso}"></span></p>
                     <p><strong>Código de Aula:</strong> <span th:text="${ubicacionUsuario.codigoAula}"></span></p>
                 </div>
-                <div th:unless="${ubicacionUsuario != null}">
-                    <p class="text-danger">Aún no tienes una ubicación de entrega registrada. ¡Por favor, añade una para continuar con tu compra!</p>
+                <div id="ubicacionVacia" th:unless="${ubicacionUsuario != null}"> <p class="text-danger">Aún no tienes una ubicación de entrega registrada. ¡Por favor, añade una para continuar con tu compra!</p>
                     <a th:href="@{/user/aula}" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-map-marker-alt"></i> Añadir Ubicación</a>
                 </div>
             </div>
+
             <hr>
-            <div th:if="${carrito != null and not #lists.isEmpty(carrito.items)}">
+
+            <div id="carritoContent" th:if="${carrito != null and not #lists.isEmpty(carrito.items)}">
                 <h4>Ítems en tu carrito:</h4>
                 <div th:each="item : ${carrito.items}" class="carrito-item">
                     <div class="item-details">
                         <h5 th:if="${item.producto != null}" th:text="${item.producto.nombre}">Nombre del Producto</h5>
                         <h5 th:if="${item.oferta != null}" th:text="${item.oferta.nombreOferta}">Nombre de la Oferta</h5>
+                        <p>Cantidad: <span th:text="${item.cantidad}"></span></p>
                         <p>Precio Unitario: S/. <span th:text="${#numbers.formatDecimal(item.precioUnitarioAlMomento, 1, 2)}">0.00</span></p>
                     </div>
                     <div class="item-controls">
-                        <form class="d-flex align-items-center me-2 update-quantity-form">
-                            <input type="hidden" name="itemId" th:value="${item.id}" />
+                        <form th:action="@{/user/carrito/update}" method="post" class="d-flex align-items-center me-2 update-quantity-form"> <input type="hidden" name="itemId" th:value="${item.id}" />
                             <label th:for="${'quantity_' + item.id}" class="form-label mb-0 me-2">Cantidad:</label>
-                            <input type="number" th:id="${'quantity_' + item.id}" name="quantity" th:value="${item.cantidad}" min="1" class="form-control form-control-sm"/>
+                            <input type="number" th:id="${'quantity_' + item.id}" name="quantity" th:value="${item.cantidad}" min="1" class="form-control form-control-sm"
+                                   onchange="this.form.submit()" />
                             <button type="submit" class="btn btn-primary btn-sm ms-2" title="Actualizar cantidad"><i class="fa-solid fa-arrows-rotate"></i></button>
                         </form>
-                        <form class="remove-item-form">
-                            <input type="hidden" name="itemId" th:value="${item.id}" />
+                        <form th:action="@{/user/carrito/remove}" method="post" class="remove-item-form"> <input type="hidden" name="itemId" th:value="${item.id}" />
                             <button type="submit" class="btn btn-danger btn-sm" title="Eliminar ítem"><i class="fa-solid fa-trash-can"></i></button>
                         </form>
                     </div>
@@ -71,16 +71,16 @@
                         S/. <span th:text="${#numbers.formatDecimal(item.precioUnitarioAlMomento * item.cantidad, 1, 2)}">0.00</span>
                     </div>
                 </div>
+
                 <div class="carrito-summary text-end">
-                    <p class="carrito-total">Total: S/. <span th:text="${#numbers.formatDecimal(totalCarrito, 1, 2)}">0.00</span></p>
-                    <form id="procesarPagoForm">
-                        <button type="submit" class="btn btn-success btn-lg" id="procesarPagoBtn" th:disabled="${ubicacionUsuario == null}">
-                            <i class="fa-solid fa-cash-register"></i> Proceder al Pago
-                        </button>
-                    </form>
+                    <p class="carrito-total">Total: S/. <span id="totalCarritoDisplay" th:text="${#numbers.formatDecimal(totalCarrito, 1, 2)}">0.00</span></p> <form id="procesarPagoForm"> <button type="submit" class="btn btn-success btn-lg" id="procesarPagoBtn"
+                                                                                                                                                                                                    th:disabled="${ubicacionUsuario == null}">
+                    <i class="fa-solid fa-cash-register"></i> Proceder al Pago
+                </button>
+                </form>
                 </div>
             </div>
-            <div th:unless="${carrito != null and not #lists.isEmpty(carrito.items)}" class="alert alert-info text-center mt-5">
+            <div id="carritoVacioContent" th:unless="${carrito != null and not #lists.isEmpty(carrito.items)}" class="alert alert-info text-center mt-5">
                 <p><i class="fa-solid fa-triangle-exclamation"></i> Tu carrito está vacío. ¡Añade algunos productos o ofertas!</p>
                 <a th:href="@{/user/compra}" class="btn btn-primary mt-3"><i class="fa-solid fa-plus-circle"></i> Ir a Comprar</a>
             </div>
@@ -111,127 +111,277 @@
                 </div>
             </div>
         </div>
-
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="/script.js"></script> <script>
+        <div class="modal fade" id="reclamacionModal" tabindex="-1" aria-labelledby="reclamacionModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="reclamacionModalLabel"><i class="fa-solid fa-file-alt"></i> Formulario de Reclamación</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="reclamacionForm">
+                            <div class="mb-3">
+                                <label for="nombreCompletoReclamacion" class="form-label">Nombre Completo:</label>
+                                <input type="text" class="form-control" id="nombreCompletoReclamacion" name="nombreCompleto" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="correoReclamacion" class="form-label">Correo Electrónico:</label>
+                                <input type="email" class="form-control" id="correoReclamacion" name="correo" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="tipoReclamacion" class="form-label">Tipo de Reclamación:</label>
+                                <select class="form-select" id="tipoReclamacion" name="tipoReclamacion" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="QUEJA">Queja</option>
+                                    <option value="SUGERENCIA">Sugerencia</option>
+                                    <option value="RECLAMACION">Reclamación</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="descripcionReclamacion" class="form-label">Descripción:</label>
+                                <textarea class="form-control" id="descripcionReclamacion" name="descripcion" rows="4" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-paper-plane"></i> Enviar Reclamación</button>
+                            <div id="reclamacionMessage" class="mt-3 text-center" style="font-weight: bold;"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:replace="~{footerUser :: appFooter}"></div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
+        <script src="/script.js"></script>
+        <script>
             document.addEventListener('DOMContentLoaded', () => {
-                // Contenedor principal del carrito que se va a refrescar
-                const carritoContainer = document.querySelector('.carrito-container');
+                const procesarPagoForm = document.getElementById('procesarPagoForm');
+                const ubicacionUsuarioNull = document.getElementById('ubicacionVacia');
+                const ubicacionUsuarioDetalle = document.getElementById('ubicacionDetalle');
+                const carritoContent = document.getElementById('carritoContent');
+                const carritoVacioContent = document.getElementById('carritoVacioContent');
+                const procesarPagoBtn = document.getElementById('procesarPagoBtn');
 
-                // Función para recargar el contenido del carrito usando el fragmento
+                if (procesarPagoForm) {
+                    procesarPagoForm.addEventListener('submit', async (event) => {
+                        event.preventDefault();
+
+                        procesarPagoBtn.disabled = true;
+                        procesarPagoBtn.textContent = 'Procesando...';
+
+                        if (ubicacionUsuarioNull && !ubicacionUsuarioNull.hidden) {
+                            showModal('No tienes una ubicación de entrega registrada. Por favor, añádela antes de procesar el pago.', false, null);
+                            procesarPagoBtn.disabled = false;
+                            procesarPagoBtn.innerHTML = '<i class="fa-solid fa-cash-register"></i> Proceder al Pago';
+                            return; // Detener la ejecución si no hay ubicación
+                        }
+
+                        try {
+                            const response = await fetch('/user/carrito/procesarPagoAjax', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                },
+                            });
+
+                            const data = await response.json();
+                            console.log("Respuesta AJAX de procesar pago:", data);
+
+                            if (data.success) {
+                                showModal(data.message, true, null);
+                                if (carritoContent) {
+                                    carritoContent.innerHTML = '';
+                                    carritoContent.style.display = 'none';
+                                }
+                                if (carritoVacioContent) {
+                                    carritoVacioContent.style.display = 'block';
+                                }
+                                if (procesarPagoBtn) {
+                                     procesarPagoBtn.disabled = true;
+                                }
+
+                            } else {
+                                showModal(data.message, false, data.redirectUrl);
+                            }
+                        } catch (error) {
+                            console.error('Error durante el procesamiento del pago AJAX:', error);
+                            showModal('Hubo un error al procesar tu solicitud de pago. Inténtalo de nuevo.', false, null);
+                        } finally {
+                            procesarPagoBtn.disabled = false;
+                            procesarPagoBtn.innerHTML = '<i class="fa-solid fa-cash-register"></i> Proceder al Pago';
+                        }
+                    });
+                } else {
+                    console.error("ERROR: Formulario 'procesarPagoForm' no encontrado.");
+                }
+
+                document.querySelectorAll('.update-quantity-form').forEach(form => {
+                    form.addEventListener('submit', async (event) => {
+                        event.preventDefault();
+                        const itemId = form.querySelector('input[name="itemId"]').value;
+                        const quantity = form.querySelector('input[name="quantity"]').value;
+
+                        try {
+                            const response = await fetch(`/user/carrito/update?itemId=${itemId}&quantity=${quantity}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                }
+                            });
+                            const data = await response.json();
+
+                            if (data.success) {
+                                await fetchAndRenderCarrito();
+                                showModal(data.message, true, null);
+                            } else {
+                                showModal(data.message, false, data.redirectUrl);
+                            }
+                        } catch (error) {
+                            console.error('Error al actualizar cantidad AJAX:', error);
+                            showModal('Hubo un error al actualizar la cantidad.', false, null);
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.remove-item-form').forEach(form => {
+                    form.addEventListener('submit', async (event) => {
+                        event.preventDefault();
+                        const itemId = form.querySelector('input[name="itemId"]').value;
+
+                        try {
+                            const response = await fetch(`/user/carrito/remove?itemId=${itemId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                }
+                            });
+                            const data = await response.json();
+
+                            if (data.success) {
+                                await fetchAndRenderCarrito();
+                                showModal(data.message, true, null);
+                            } else {
+                                showModal(data.message, false, data.redirectUrl);
+                            }
+                        } catch (error) {
+                            console.error('Error al eliminar ítem AJAX:', error);
+                            showModal('Hubo un error al eliminar el ítem.', false, null);
+                        }
+                    });
+                });
+
                 async function fetchAndRenderCarrito() {
                     try {
                         const response = await fetch('/user/carrito-fragment');
                         const html = await response.text();
-                        if (response.ok) {
-                            carritoContainer.innerHTML = html;
-                            // Después de refrescar, volvemos a añadir los listeners a los nuevos botones
-                            addEventListenersToForms();
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = html;
+
+                        const newCarritoContent = tempDiv.querySelector('#carritoContent');
+                        const newCarritoVacioContent = tempDiv.querySelector('#carritoVacioContent');
+                        const newTotalCarritoDisplay = tempDiv.querySelector('#totalCarritoDisplay');
+                        const newUbicacionDetalle = tempDiv.querySelector('#ubicacionDetalle');
+                        const newUbicacionVacia = tempDiv.querySelector('#ubicacionVacia');
+                        const newProcesarPagoBtn = tempDiv.querySelector('#procesarPagoBtn');
+
+
+                        if (newCarritoContent) {
+                            carritoContent.innerHTML = newCarritoContent.innerHTML;
+                            carritoContent.style.display = newCarritoContent.style.display;
                         } else {
-                            console.error('Error al refrescar el fragmento del carrito. Estado:', response.status);
+                            carritoContent.innerHTML = '';
+                            carritoContent.style.display = 'none';
                         }
-                    } catch (error) {
-                        console.error('Error de red al refrescar el carrito:', error);
-                    }
-                }
 
-                // Función para añadir los listeners a todos los formularios del carrito
-                function addEventListenersToForms() {
-                    // Listener para actualizar cantidad
-                    document.querySelectorAll('.update-quantity-form').forEach(form => {
-                        form.addEventListener('submit', async (event) => {
-                            event.preventDefault();
-                            const formData = new FormData(form);
-                            const params = new URLSearchParams(formData);
+                        if (newCarritoVacioContent) {
+                            carritoVacioContent.innerHTML = newCarritoVacioContent.innerHTML;
+                            carritoVacioContent.style.display = newCarritoVacioContent.style.display;
+                        } else {
+                            carritoVacioContent.style.display = 'none';
+                        }
 
-                            try {
-                                const response = await fetch('/user/carrito/update', {
-                                    method: 'POST',
-                                    body: params
-                                });
-                                const data = await response.json();
-                                if (data.success) {
-                                    await fetchAndRenderCarrito();
-                                } else {
-                                    // Si quieres mostrar el error en el modal, descomenta la siguiente línea
-                                    // showModal(data.message, false, data.redirectUrl);
-                                    console.error("Error al actualizar:", data.message);
-                                }
-                            } catch (error) {
-                                console.error('Error en la solicitud para actualizar item:', error);
-                            }
-                        });
-                    });
+                        if (newUbicacionDetalle) {
+                            ubicacionUsuarioDetalle.innerHTML = newUbicacionDetalle.innerHTML;
+                            ubicacionUsuarioDetalle.style.display = newUbicacionDetalle.style.display;
+                        } else {
+                            ubicacionUsuarioDetalle.style.display = 'none';
+                        }
 
-                    // Listener para eliminar item
-                    document.querySelectorAll('.remove-item-form').forEach(form => {
-                        form.addEventListener('submit', async (event) => {
-                            event.preventDefault();
-                            if (!confirm('¿Estás seguro de que quieres eliminar este ítem?')) {
-                                return;
-                            }
-                            const formData = new FormData(form);
-                            const params = new URLSearchParams(formData);
+                        if (newUbicacionVacia) {
+                            ubicacionUsuarioVacia.innerHTML = newUbicacionVacia.innerHTML;
+                            ubicacionUsuarioVacia.style.display = newUbicacionVacia.style.display;
+                        } else {
+                            ubicacionUsuarioVacia.style.display = 'none';
+                        }
 
-                            try {
-                                const response = await fetch('/user/carrito/remove', {
-                                    method: 'POST',
-                                    body: params
-                                });
-                                const data = await response.json();
-                                if (data.success) {
-                                    await fetchAndRenderCarrito();
-                                } else {
-                                    // showModal(data.message, false, data.redirectUrl);
-                                    console.error("Error al eliminar:", data.message);
-                                }
-                            } catch (error) {
-                                console.error('Error en la solicitud para eliminar item:', error);
-                            }
-                        });
-                    });
-
-                    // Listener para el formulario de pago
-                    const procesarPagoForm = document.getElementById('procesarPagoForm');
-                    if (procesarPagoForm) {
-                        procesarPagoForm.addEventListener('submit', async (event) => {
-                            event.preventDefault();
-                            const procesarPagoBtn = document.getElementById('procesarPagoBtn');
+                        if (newProcesarPagoBtn) {
+                             procesarPagoBtn.disabled = newProcesarPagoBtn.disabled;
+                             procesarPagoBtn.innerHTML = newProcesarPagoBtn.innerHTML;
+                        } else {
                             procesarPagoBtn.disabled = true;
-                            procesarPagoBtn.textContent = 'Procesando...';
+                        }
 
-                            try {
-                                const response = await fetch('/user/carrito/procesarPagoAjax', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/x-www-form-urlencoded',
-                                    },
-                                });
 
-                                const data = await response.json();
-                                if (data.success) {
-                                    // Pago exitoso, refrescamos el carrito que ahora estará vacío
-                                    await fetchAndRenderCarrito();
-                                    // Y mostramos el mensaje de éxito
-                                    showModal(data.message, true, null);
-                                } else {
-                                    showModal(data.message, false, data.redirectUrl);
-                                }
-                            } catch (error) {
-                                console.error('Error durante el procesamiento del pago AJAX:', error);
-                                showModal('Hubo un error al procesar tu solicitud de pago. Inténtalo de nuevo.', false, null);
-                            } finally {
-                                // El botón de pago ya no existirá si el carrito se vació,
-                                // así que no necesitamos reactivarlo. Si hubo un error, se reactivará
-                                // la próxima vez que se refresque el fragmento.
-                            }
-                        });
+                    } catch (error) {
+                        console.error('Error al recargar el contenido del carrito:', error);
                     }
                 }
-
-                // Añadir los listeners por primera vez al cargar la página
-                addEventListenersToForms();
             });
+            console.log("Script de formulario de reclamación cargado (en página principal).");
+            const reclamacionForm = document.getElementById('reclamacionForm');
+            const reclamacionMessageDiv = document.getElementById('reclamacionMessage');
+
+            function displayReclamacionMessage(message, isSuccess) {
+                if (reclamacionMessageDiv) {
+                    reclamacionMessageDiv.textContent = message;
+                    reclamacionMessageDiv.classList.remove('text-success', 'text-danger');
+                    if (isSuccess) {
+                        reclamacionMessageDiv.classList.add('text-success');
+                    } else {
+                        reclamacionMessageDiv.classList.add('text-danger');
+                    }
+                    setTimeout(() => {
+                        reclamacionMessageDiv.textContent = '';
+                        reclamacionMessageDiv.classList.remove('text-success', 'text-danger');
+                    }, 5000);
+                }
+            }
+
+            if (reclamacionForm) {
+                reclamacionForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    console.log("Evento submit de reclamacionForm disparado.");
+
+                    if (reclamacionMessageDiv) {
+                        reclamacionMessageDiv.textContent = '';
+                        reclamacionMessageDiv.classList.remove('text-success', 'text-danger');
+                    }
+
+                    const formData = new FormData(reclamacionForm);
+                    const jsonData = {};
+                    formData.forEach((value, key) => { jsonData[key] = value; });
+
+                    try {
+                        const response = await fetch('/user/reclamacion/enviar', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', },
+                            body: JSON.stringify(jsonData),
+                        });
+                        const data = await response.json();
+                        console.log("Respuesta AJAX de reclamación:", data);
+
+                        displayReclamacionMessage(data.message, data.success);
+
+                        if (data.success) {
+                            reclamacionForm.reset(); // Limpia el formulario si es exitoso
+                        }
+
+                    } catch (error) {
+                        console.error('Error al enviar la reclamación:', error);
+                        displayReclamacionMessage('Hubo un error al enviar tu reclamación. Inténtalo de nuevo más tarde.', false);
+                    }
+                });
+            } else {
+                console.error("ERROR: reclamacionForm no encontrado en la página. El listener de submit no se adjuntó.");
+            }
         </script>
     </body>
 </html>
