@@ -40,7 +40,7 @@ if (modal && closeButton && modalMessage && modalActionButton) {
     console.log("Modal elements found. Initializing modal functions.");
 
     function showModal(message, isSuccess, redirectAfterClose) {
-        console.log("showModal called with message:", message);
+        console.log("showModal called with message:", message, "isSuccess:", isSuccess, "redirectAfterClose:", redirectAfterClose);
         modalMessage.textContent = message;
         if (isSuccess) {
             modalMessage.classList.remove('error-message');
@@ -83,16 +83,23 @@ if (modal && closeButton && modalMessage && modalActionButton) {
 const registerForm = document.getElementById('registerForm');
 const registerEmailInput = document.getElementById('registerEmail');
 const registerPasswordInput = document.getElementById('registerPassword');
+const registerNombreCompletoInput = document.getElementById('registerNombreCompleto');
+const registerCodigoEstudianteInput = document.getElementById('registerCodigoEstudiante');
 
-if (registerForm && registerEmailInput && registerPasswordInput) {
+
+if (registerForm && registerEmailInput && registerPasswordInput && registerNombreCompletoInput && registerCodigoEstudianteInput) {
     console.log("Register form elements found. Attaching submit listener.");
     registerForm.addEventListener('submit', async (event) => {
         event.preventDefault();
 
         const email = registerEmailInput.value;
         const password = registerPasswordInput.value;
+        const nombreCompleto = registerNombreCompletoInput.value;
+        const codigoEstudiante = registerCodigoEstudianteInput.value;
 
         console.log("Attempting AJAX registration for:", email);
+        console.log("Nombre Completo:", nombreCompleto);
+        console.log("Código de Estudiante:", codigoEstudiante);
 
         try {
             const response = await fetch('/register-ajax', {
@@ -102,7 +109,9 @@ if (registerForm && registerEmailInput && registerPasswordInput) {
                 },
                 body: new URLSearchParams({
                     registerEmail: email,
-                    registerPassword: password
+                    registerPassword: password,
+                    registerNombreCompleto: nombreCompleto,
+                    registerCodigoEstudiante: codigoEstudiante
                 })
             });
 
@@ -110,6 +119,8 @@ if (registerForm && registerEmailInput && registerPasswordInput) {
             console.log("AJAX response received:", data);
 
             if (data.success) {
+                registerNombreCompletoInput.value = '';
+                registerCodigoEstudianteInput.value = '';
                 registerEmailInput.value = '';
                 registerPasswordInput.value = '';
                 console.log("Registration successful. Fields cleared.");
@@ -122,5 +133,5 @@ if (registerForm && registerEmailInput && registerPasswordInput) {
         }
     });
 } else {
-    console.error("ERROR: Register form or its inputs not found. AJAX registration disabled.");
+    console.error("ERROR: Register form or its inputs (email, password, nombreCompleto, codigoEstudiante) not found. AJAX registration disabled.");
 }
