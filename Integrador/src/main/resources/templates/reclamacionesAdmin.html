@@ -14,6 +14,12 @@
         <div class="container mt-4">
             <h2 class="mb-4">Gestión de Reclamaciones</h2>
 
+            <div class="mb-3">
+                <a th:href="@{/admin/reportes/reclamaciones-excel}" class="btn btn-warning">
+                    <i class="fa-solid fa-file-excel"></i> Descargar Reporte de Reclamaciones (Excel)
+                </a>
+            </div>
+
             <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
                 <span th:text="${errorMessage}"></span>
             </div>

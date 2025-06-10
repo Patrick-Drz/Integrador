@@ -80,7 +80,6 @@ body {
     font-size: 0.9rem;
 }
 
-/* Estilos específicos para el carrito */
 .carrito-container {
     max-width: 900px;
     margin: 30px auto;
@@ -147,7 +146,6 @@ body {
     margin-top: 20px;
 }
 
-/* Modal */
 .modal-hidden {
     display: none !important;
 }
@@ -226,4 +224,10 @@ body {
     color: red;
     font-weight: bold;
     margin-top: 10px;
+}
+
+#cafeteriaCarousel .carousel-item img {
+    height: 400px;
+    object-fit: cover;
+    width: 100%;
 }

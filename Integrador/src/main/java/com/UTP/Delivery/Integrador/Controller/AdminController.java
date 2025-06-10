@@ -7,6 +7,7 @@ import com.UTP.Delivery.Integrador.Model.Oferta;
 import com.UTP.Delivery.Integrador.Service.OfertaService;
 import com.UTP.Delivery.Integrador.Model.OrdenVenta;
 import com.UTP.Delivery.Integrador.Service.ReclamacionService;
+import com.UTP.Delivery.Integrador.Service.ReporteService;
 import com.UTP.Delivery.Integrador.Service.VentaService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +20,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 @Controller
 @RequestMapping("/admin")
@@ -44,6 +50,9 @@ public class AdminController {
 
     @Autowired
     private ReclamacionService reclamacionService;
+
+    @Autowired
+    private ReporteService reporteService;
 
     private boolean isAdminLoggedIn(HttpSession session) {
         Boolean isAdmin = (Boolean) session.getAttribute("isAdmin");
@@ -296,6 +305,48 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("errorMessage", "Error al cargar las reclamaciones: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/dashboard";
+        }
+    }
+
+    @GetMapping("/reportes/ventas-excel")
+    public ResponseEntity<Resource> descargarReporteVentasExcel() {
+        try {
+            ByteArrayOutputStream excelStream = reporteService.generarReporteVentasExcel();
+            ByteArrayResource resource = new ByteArrayResource(excelStream.toByteArray());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reporte_ventas.xlsx");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(resource.contentLength())
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(resource);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(null);
+        }
+    }
+
+    @GetMapping("/reportes/reclamaciones-excel")
+    public ResponseEntity<Resource> descargarReporteReclamacionesExcel() {
+        try {
+            ByteArrayOutputStream excelStream = reporteService.generarReporteReclamacionesExcel();
+            ByteArrayResource resource = new ByteArrayResource(excelStream.toByteArray());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=reporte_reclamaciones.xlsx");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(resource.contentLength())
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(resource);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(null);
         }
     }
 }
