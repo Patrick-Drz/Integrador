@@ -227,7 +227,7 @@
             document.addEventListener('DOMContentLoaded', function() {
                 var editOfferModal = document.getElementById('editOfferModal');
                 editOfferModal.addEventListener('show.bs.modal', function (event) {
-                    var button = event.relatedTarget; // Botón que activó el modal
+                    var button = event.relatedTarget; 
                     var id = button.getAttribute('data-offer-id');
                     var codigo = button.getAttribute('data-offer-codigo');
                     var nombre = button.getAttribute('data-offer-nombre');
@@ -261,7 +261,7 @@
 
                 var deleteConfirmModal = document.getElementById('deleteConfirmModal');
                 deleteConfirmModal.addEventListener('show.bs.modal', function (event) {
-                    var button = event.relatedTarget; // Botón que activó el modal
+                    var button = event.relatedTarget; 
                     var id = button.getAttribute('data-offer-id');
                     var modalDeleteIdInput = deleteConfirmModal.querySelector('#deleteOfferId');
                     modalDeleteIdInput.value = id;

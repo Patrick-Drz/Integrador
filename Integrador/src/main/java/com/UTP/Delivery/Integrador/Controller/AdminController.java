@@ -1,23 +1,19 @@
 package com.UTP.Delivery.Integrador.Controller;
 
+import com.UTP.Delivery.Integrador.Model.Oferta;
+import com.UTP.Delivery.Integrador.Model.OrdenVenta;
 import com.UTP.Delivery.Integrador.Model.Producto;
 import com.UTP.Delivery.Integrador.Model.Reclamacion;
-import com.UTP.Delivery.Integrador.Service.ProductoService;
-import com.UTP.Delivery.Integrador.Model.Oferta;
-import com.UTP.Delivery.Integrador.Service.OfertaService;
-import com.UTP.Delivery.Integrador.Model.OrdenVenta;
-import com.UTP.Delivery.Integrador.Service.ReclamacionService;
-import com.UTP.Delivery.Integrador.Service.ReporteService;
-import com.UTP.Delivery.Integrador.Service.VentaService;
-import jakarta.servlet.http.HttpSession;
+import com.UTP.Delivery.Integrador.Service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.ByteArrayOutputStream;
@@ -27,11 +23,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 
 @Controller
 @RequestMapping("/admin")
@@ -41,59 +32,32 @@ public class AdminController {
 
     @Autowired
     private ProductoService productoService;
-
     @Autowired
     private OfertaService ofertaService;
-
     @Autowired
     private VentaService ventaService;
-
     @Autowired
     private ReclamacionService reclamacionService;
-
     @Autowired
     private ReporteService reporteService;
 
-    private boolean isAdminLoggedIn(HttpSession session) {
-        Boolean isAdmin = (Boolean) session.getAttribute("isAdmin");
-        return isAdmin != null && isAdmin;
-    }
-
     @GetMapping("/dashboard")
-    public String adminDashboard(HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!isAdminLoggedIn(session)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Acceso denegado. Por favor, inicie sesión como administrador.");
-            return "redirect:/login";
-        }
+    public String adminDashboard() {
         return "indexAdmin";
     }
 
-
-    // Menus
     @GetMapping("/menusAdmin")
-    public String showMenusAdmin(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!isAdminLoggedIn(session)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Acceso denegado. Por favor, inicie sesión como administrador.");
-            return "redirect:/login";
-        }
+    public String showMenusAdmin(Model model) {
         model.addAttribute("producto", new Producto());
-
         List<Producto> productos = productoService.getAllProductos();
         model.addAttribute("productos", productos);
-
         return "menusAdmin";
     }
 
     @PostMapping("/menu/add")
     public String addProducto(@ModelAttribute Producto producto,
                               @RequestParam("imagenFile") MultipartFile file,
-                              RedirectAttributes redirectAttributes,
-                              HttpSession session) {
-        if (!isAdminLoggedIn(session)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Acceso denegado.");
-            return "redirect:/login";
-        }
-
+                              RedirectAttributes redirectAttributes) {
         if (!file.isEmpty()) {
             try {
                 Path uploadPath = Paths.get(UPLOAD_DIRECTORY);
@@ -101,7 +65,7 @@ public class AdminController {
                     Files.createDirectories(uploadPath);
                 }
                 String uniqueFilename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-                Path fileNameAndPath = Paths.get(UPLOAD_DIRECTORY, uniqueFilename);
+                Path fileNameAndPath = uploadPath.resolve(uniqueFilename);
                 Files.write(fileNameAndPath, file.getBytes());
                 producto.setRutaImagen("/uploads/" + uniqueFilename);
             } catch (IOException e) {
@@ -111,7 +75,6 @@ public class AdminController {
                 return "redirect:/admin/menusAdmin";
             }
         }
-
         try {
             productoService.saveProducto(producto);
             redirectAttributes.addFlashAttribute("addMessage", "Producto añadido correctamente.");
@@ -127,18 +90,11 @@ public class AdminController {
     @PostMapping("/menu/edit")
     public String editProducto(@ModelAttribute Producto producto,
                                @RequestParam("imagenFile") MultipartFile file,
-                               RedirectAttributes redirectAttributes,
-                               HttpSession session) {
-        if (!isAdminLoggedIn(session)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Acceso denegado.");
-            return "redirect:/login";
-        }
-
+                               RedirectAttributes redirectAttributes) {
         try {
             if (producto.getId() == null) {
                 throw new IllegalArgumentException("ID del producto no puede ser nulo para la edición.");
             }
-
             if (!file.isEmpty()) {
                 try {
                     String uniqueFilename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
@@ -148,20 +104,15 @@ public class AdminController {
                 } catch (IOException e) {
                     e.printStackTrace();
                     redirectAttributes.addFlashAttribute("editMessage", "Error al cambiar la imagen: " + e.getMessage());
-                    redirectAttributes.addFlashAttribute("editSuccess", false);
                     return "redirect:/admin/menusAdmin";
                 }
             } else {
-                Optional<Producto> productoExistente = productoService.getProductoById(producto.getId());
-                if (productoExistente.isPresent()) {
-                    producto.setRutaImagen(productoExistente.get().getRutaImagen());
-                }
+                productoService.getProductoById(producto.getId())
+                        .ifPresent(p -> producto.setRutaImagen(p.getRutaImagen()));
             }
-
             productoService.updateProducto(producto);
             redirectAttributes.addFlashAttribute("editMessage", "Producto modificado correctamente.");
             redirectAttributes.addFlashAttribute("editSuccess", true);
-
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("editMessage", "Error inesperado al modificar producto: " + e.getMessage());
             redirectAttributes.addFlashAttribute("editSuccess", false);
@@ -171,11 +122,7 @@ public class AdminController {
     }
 
     @PostMapping("/menu/delete")
-    public String deleteProducto(@ModelAttribute("id") Long id, RedirectAttributes redirectAttributes, HttpSession session) {
-        if (!isAdminLoggedIn(session)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Acceso denegado.");
-            return "redirect:/login";
-        }
+    public String deleteProducto(@RequestParam("id") Long id, RedirectAttributes redirectAttributes) {
         try {
             productoService.deleteProducto(id);
             redirectAttributes.addFlashAttribute("deleteMessage", "Producto eliminado correctamente.");
@@ -188,27 +135,15 @@ public class AdminController {
         return "redirect:/admin/menusAdmin";
     }
 
-    // Ofertas
     @GetMapping("/ofertasAdmin")
-    public String showOfertasAdmin(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!isAdminLoggedIn(session)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Acceso denegado.");
-            return "redirect:/login";
-        }
+    public String showOfertasAdmin(Model model) {
         model.addAttribute("oferta", new Oferta());
-
-        List<Oferta> ofertas = ofertaService.getAllOfertas();
-        model.addAttribute("ofertas", ofertas);
-
+        model.addAttribute("ofertas", ofertaService.getAllOfertas());
         return "ofertasAdmin";
     }
 
     @PostMapping("/ofertas/add")
-    public String addOferta(@ModelAttribute Oferta oferta, RedirectAttributes redirectAttributes, HttpSession session) {
-        if (!isAdminLoggedIn(session)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Acceso denegado.");
-            return "redirect:/login";
-        }
+    public String addOferta(@ModelAttribute Oferta oferta, RedirectAttributes redirectAttributes) {
         try {
             ofertaService.saveOferta(oferta);
             redirectAttributes.addFlashAttribute("addMessage", "Oferta añadida correctamente.");
@@ -222,11 +157,7 @@ public class AdminController {
     }
 
     @PostMapping("/ofertas/edit")
-    public String editOferta(@ModelAttribute Oferta oferta, RedirectAttributes redirectAttributes, HttpSession session) {
-        if (!isAdminLoggedIn(session)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Acceso denegado.");
-            return "redirect:/login";
-        }
+    public String editOferta(@ModelAttribute Oferta oferta, RedirectAttributes redirectAttributes) {
         try {
             if (oferta.getId() == null) {
                 throw new IllegalArgumentException("ID de la oferta no puede ser nulo para la edición.");
@@ -234,11 +165,8 @@ public class AdminController {
             ofertaService.updateOferta(oferta);
             redirectAttributes.addFlashAttribute("editMessage", "Oferta modificada correctamente.");
             redirectAttributes.addFlashAttribute("editSuccess", true);
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("editMessage", "Error al modificar oferta: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("editSuccess", false);
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("editMessage", "Error inesperado al modificar oferta: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("editMessage", "Error al modificar oferta: " + e.getMessage());
             redirectAttributes.addFlashAttribute("editSuccess", false);
             e.printStackTrace();
         }
@@ -246,11 +174,7 @@ public class AdminController {
     }
 
     @PostMapping("/ofertas/delete")
-    public String deleteOferta(@ModelAttribute("id") Long id, RedirectAttributes redirectAttributes, HttpSession session) {
-        if (!isAdminLoggedIn(session)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Acceso denegado.");
-            return "redirect:/login";
-        }
+    public String deleteOferta(@RequestParam("id") Long id, RedirectAttributes redirectAttributes) {
         try {
             ofertaService.deleteOferta(id);
             redirectAttributes.addFlashAttribute("deleteMessage", "Oferta eliminada correctamente.");
@@ -264,25 +188,9 @@ public class AdminController {
     }
 
     @GetMapping("/ventas")
-    public String showVentasAdmin(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!isAdminLoggedIn(session)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Acceso denegado. Solo administradores.");
-            return "redirect:/login";
-        }
+    public String showVentasAdmin(Model model, RedirectAttributes redirectAttributes) {
         try {
-            List<OrdenVenta> ordenesVenta = ventaService.getAllOrdenesVenta();
-
-            System.out.println("DEBUG: Número de órdenes de venta recuperadas: " + ordenesVenta.size());
-            ordenesVenta.forEach(orden -> {
-                String userName = (orden.getUsuario() != null) ? orden.getUsuario().getNombreCompleto() : "N/A";
-                String ubicacion = (orden.getUbicacionEntrega() != null) ?
-                        orden.getUbicacionEntrega().getPiso() + " - " + orden.getUbicacionEntrega().getCodigoAula() : "N/A";
-                System.out.println("  Orden ID: " + orden.getId() + ", Total: " + orden.getTotal() +
-                        ", Usuario: " + userName +
-                        ", Ubicación: " + ubicacion +
-                        ", Items: " + (orden.getItems() != null ? orden.getItems().size() : "0"));
-            });
-            model.addAttribute("ordenesVenta", ordenesVenta);
+            model.addAttribute("ordenesVenta", ventaService.getAllOrdenesVenta());
             return "ventasAdmin";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error al cargar el historial de ventas: " + e.getMessage());
@@ -292,14 +200,9 @@ public class AdminController {
     }
 
     @GetMapping("/reclamaciones")
-    public String showReclamacionesAdmin(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!isAdminLoggedIn(session)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Acceso denegado. Solo administradores.");
-            return "redirect:/login";
-        }
+    public String showReclamacionesAdmin(Model model, RedirectAttributes redirectAttributes) {
         try {
-            List<Reclamacion> reclamaciones = reclamacionService.getAllReclamaciones();
-            model.addAttribute("reclamaciones", reclamaciones);
+            model.addAttribute("reclamaciones", reclamacionService.getAllReclamaciones());
             return "reclamacionesAdmin";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error al cargar las reclamaciones: " + e.getMessage());
@@ -322,10 +225,9 @@ public class AdminController {
                     .contentLength(resource.contentLength())
                     .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                     .body(resource);
-
         } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity.internalServerError().body(null);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -343,10 +245,9 @@ public class AdminController {
                     .contentLength(resource.contentLength())
                     .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                     .body(resource);
-
         } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity.internalServerError().body(null);
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

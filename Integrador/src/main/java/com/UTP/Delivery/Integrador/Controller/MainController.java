@@ -12,15 +12,10 @@ public class MainController {
     public String redirectToLogin() {
         return "redirect:/login";
     }
-    //Métodos User
     @GetMapping("/indexUsuario")
     public String indexUsuarioPage() {
         return "indexUsuario"; //
     }
-    //@GetMapping("/compraUsuario")
-    //public String compraUsuarioPage() { return "compraUsuario"; }
-    //@GetMapping("/aulaUsuario")
-    //public String aulaUsuarioPage() {return "aulaUsuario"; }
     @GetMapping("/ofertasUsuario")
     public String ofertasUsuarioPage() {return "ofertasUsuario"; }
     @GetMapping("/carritoUsuario")
@@ -29,14 +24,8 @@ public class MainController {
     public String sobreNosotrosUsuarioPage() {
         return "sobreNosotrosUsuario";
     }
-
-    //Métodos Admin
     @GetMapping("/indexAdmin")
     public String indexAdminPage() { return "indexAdmin"; }
-    //@GetMapping("/menusAdmin")
-    //public String menusAdminPage() { return "menusAdmin"; }
-    //@GetMapping("/ofertasAdmin")
-    //public String ofertasAdminPage() { return "ofertasAdmin";  }
     @GetMapping("/reclamacionesAdmin")
     public String reclamacionesAdminPage() { return "reclamacionesAdmin"; }
     @GetMapping("/ventasAdmin")

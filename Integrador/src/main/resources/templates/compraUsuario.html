@@ -153,7 +153,7 @@
 
           addToCartForms.forEach(form => {
               form.addEventListener('submit', async function(event) {
-                  event.preventDefault(); // Prevenir el envío normal del formulario
+                  event.preventDefault(); 
 
                   const formData = new FormData(form);
                   const urlSearchParams = new URLSearchParams();
@@ -242,7 +242,7 @@
                         displayReclamacionMessage(data.message, data.success);
 
                         if (data.success) {
-                            reclamacionForm.reset(); // Limpia el formulario si es exitoso
+                            reclamacionForm.reset(); 
                         }
 
                     } catch (error) {

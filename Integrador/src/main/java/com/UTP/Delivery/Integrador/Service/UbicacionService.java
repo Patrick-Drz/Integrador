@@ -22,13 +22,13 @@ public class UbicacionService {
         if (ubicacionId != null) {
             ubicacion = ubicacionRepository.findById(ubicacionId)
                     .orElseThrow(() -> new IllegalArgumentException("Ubicación no encontrada con ID: " + ubicacionId));
-            if (!ubicacion.getUsuario().getId().equals(user.getId())) { // Assumes getUsuario() returns User and getId() exists
+            if (!ubicacion.getUsuario().getId().equals(user.getId())) { 
                 throw new SecurityException("No tienes permiso para modificar esta ubicación.");
             }
             ubicacion.setPiso(piso);
             ubicacion.setCodigoAula(codigoAula);
         } else {
-            Optional<Ubicacion> existingUbicacionForUser = ubicacionRepository.findByUsuario(user); // Assumes findByUsuario returns an Optional<Ubicacion>
+            Optional<Ubicacion> existingUbicacionForUser = ubicacionRepository.findByUsuario(user); 
 
             if (existingUbicacionForUser.isPresent()) {
                 ubicacion = existingUbicacionForUser.get();

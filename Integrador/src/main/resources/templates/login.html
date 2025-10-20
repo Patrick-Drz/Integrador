@@ -80,19 +80,13 @@
 
         <script th:inline="javascript">
             /*<![CDATA[*/
-            var loginMessage = /*[[${loginMessage}]]*/ null;
-            var loginSuccess = /*[[${loginSuccess}]]*/ null;
-            var redirectUrl = /*[[${redirectUrl}]]*/ null;
-
-            console.log("Thymeleaf login script loaded.");
-            console.log("Login Message (from FlashAttribute):", loginMessage);
-            console.log("Login Success (from FlashAttribute):", loginSuccess);
-            console.log("Login Redirect URL (from FlashAttribute):", redirectUrl);
-
-
-            if (loginMessage) {
-                console.log("Calling showModal for Login/Logout message.");
-                showModal(loginMessage, loginSuccess === true, redirectUrl);
+            var error = /*[[${param.error}]]*/ null;
+            var logout = /*[[${param.logout}]]*/ null;
+            if (error != null) {
+                showModal("Correo o contraseña incorrectos. Inténtalo de nuevo.", false, null);
+            }
+            if (logout != null) {
+                showModal("Has cerrado sesión correctamente.", true, null);
             }
             /*]]>*/
         </script>

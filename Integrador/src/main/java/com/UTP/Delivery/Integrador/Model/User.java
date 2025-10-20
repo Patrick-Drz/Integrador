@@ -6,13 +6,12 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "usuarios")
 @Getter
 @Setter
-@NoArgsConstructor
+@NoArgsConstructor // Mantenemos el constructor sin argumentos para JPA
 @ToString(exclude = {"contrasena"})
 public class User {
 
@@ -32,11 +31,22 @@ public class User {
     @Column(name = "codigo_estudiante", unique = true, nullable = false)
     private String codigoEstudiante;
 
+    @Column(name = "rol", nullable = false)
+    private String rol;
+
     @Column(name = "fecha_registro", updatable = false)
     private LocalDateTime fechaRegistro;
 
     @Column(name = "activo")
     private Boolean activo = true;
+
+    public User(String correo, String contrasena, String nombreCompleto, String codigoEstudiante) {
+        this.correo = correo;
+        this.contrasena = contrasena;
+        this.nombreCompleto = nombreCompleto;
+        this.codigoEstudiante = codigoEstudiante;
+        this.rol = "ROLE_USER"; 
+    }
 
     @PrePersist
     protected void onCreate() {
@@ -44,12 +54,5 @@ public class User {
         if (this.activo == null) {
             this.activo = true;
         }
-    }
-
-    public User(String correo, String contrasena, String nombreCompleto, String codigoEstudiante) {
-        this.correo = correo;
-        this.contrasena = contrasena;
-        this.nombreCompleto = nombreCompleto;
-        this.codigoEstudiante = codigoEstudiante;
     }
 }

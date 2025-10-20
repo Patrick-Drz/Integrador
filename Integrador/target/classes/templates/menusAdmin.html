@@ -210,7 +210,7 @@
             document.addEventListener('DOMContentLoaded', function() {
                 var editProductModal = document.getElementById('editProductModal');
                 editProductModal.addEventListener('show.bs.modal', function (event) {
-                    var button = event.relatedTarget; // Botón que activó el modal
+                    var button = event.relatedTarget; 
                     var id = button.getAttribute('data-product-id');
                     var codigo = button.getAttribute('data-product-codigo');
                     var nombre = button.getAttribute('data-product-nombre');

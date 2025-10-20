@@ -1,4 +1,3 @@
-//Login
 const container = document.getElementById("container");
 const registerBtn = document.getElementById("register");
 const loginBtn = document.getElementById("login");
@@ -22,7 +21,6 @@ if (container && registerBtn && loginBtn) {
   console.error("ERROR: One or more elements for panel toggle not found. Check HTML IDs.");
 }
 
-//Modal
 const modal = document.getElementById('myModal');
 const closeButton = document.querySelector('.close-button');
 const modalMessage = document.getElementById('modalMessage');
@@ -79,7 +77,6 @@ if (modal && closeButton && modalMessage && modalActionButton) {
     console.error("ERROR: One or more modal elements not found. Modal functionality may be broken. Check HTML IDs/Classes.");
 }
 
-//Registro
 const registerForm = document.getElementById('registerForm');
 const registerEmailInput = document.getElementById('registerEmail');
 const registerPasswordInput = document.getElementById('registerPassword');

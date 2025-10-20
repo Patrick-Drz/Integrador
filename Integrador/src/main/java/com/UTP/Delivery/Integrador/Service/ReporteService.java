@@ -24,8 +24,6 @@ public class ReporteService {
     @Autowired
     private ReclamacionService reclamacionService;
 
-
-    // Reporte Ventas
     public ByteArrayOutputStream generarReporteVentasExcel() throws IOException {
         List<OrdenVenta> ordenes = ventaService.getAllOrdenesVenta();
 
@@ -151,7 +149,6 @@ public class ReporteService {
         return outputStream;
     }
 
-    // Reporte Reclamaciones
     public ByteArrayOutputStream generarReporteReclamacionesExcel() throws IOException {
         List<Reclamacion> reclamaciones = reclamacionService.getAllReclamaciones();
 

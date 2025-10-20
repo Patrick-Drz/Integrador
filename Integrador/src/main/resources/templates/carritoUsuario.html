@@ -49,24 +49,30 @@
 
             <div id="carritoContent" th:if="${carrito != null and not #lists.isEmpty(carrito.items)}">
                 <h4>Ítems en tu carrito:</h4>
-                <div th:each="item : ${carrito.items}" class="carrito-item">
+                
+                <div th:each="item : ${carrito.items}" class="carrito-item" th:id="'item-row-' + ${item.id}">
+                
                     <div class="item-details">
                         <h5 th:if="${item.producto != null}" th:text="${item.producto.nombre}">Nombre del Producto</h5>
                         <h5 th:if="${item.oferta != null}" th:text="${item.oferta.nombreOferta}">Nombre de la Oferta</h5>
                         <p>Cantidad: <span th:text="${item.cantidad}"></span></p>
                         <p>Precio Unitario: S/. <span th:text="${#numbers.formatDecimal(item.precioUnitarioAlMomento, 1, 2)}">0.00</span></p>
                     </div>
+
                     <div class="item-controls">
-                        <form th:action="@{/user/carrito/update}" method="post" class="d-flex align-items-center me-2 update-quantity-form"> <input type="hidden" name="itemId" th:value="${item.id}" />
+                        <form th:action="@{/user/carrito/update}" method="post" class="update-form d-flex align-items-center me-2">
+                            <input type="hidden" name="itemId" th:value="${item.id}" />
                             <label th:for="${'quantity_' + item.id}" class="form-label mb-0 me-2">Cantidad:</label>
-                            <input type="number" th:id="${'quantity_' + item.id}" name="quantity" th:value="${item.cantidad}" min="1" class="form-control form-control-sm"
-                                   onchange="this.form.submit()" />
+                            <input type="number" th:id="${'quantity_' + item.id}" name="quantity" th:value="${item.cantidad}" min="1" class="form-control form-control-sm" />
                             <button type="submit" class="btn btn-primary btn-sm ms-2" title="Actualizar cantidad"><i class="fa-solid fa-arrows-rotate"></i></button>
                         </form>
-                        <form th:action="@{/user/carrito/remove}" method="post" class="remove-item-form"> <input type="hidden" name="itemId" th:value="${item.id}" />
+
+                        <form th:action="@{/user/carrito/remove}" method="post" class="remove-form">
+                            <input type="hidden" name="itemId" th:value="${item.id}" />
                             <button type="submit" class="btn btn-danger btn-sm" title="Eliminar ítem"><i class="fa-solid fa-trash-can"></i></button>
                         </form>
                     </div>
+
                     <div class="item-price">
                         S/. <span th:text="${#numbers.formatDecimal(item.precioUnitarioAlMomento * item.cantidad, 1, 2)}">0.00</span>
                     </div>
@@ -171,7 +177,7 @@
                             showModal('No tienes una ubicación de entrega registrada. Por favor, añádela antes de procesar el pago.', false, null);
                             procesarPagoBtn.disabled = false;
                             procesarPagoBtn.innerHTML = '<i class="fa-solid fa-cash-register"></i> Proceder al Pago';
-                            return; // Detener la ejecución si no hay ubicación
+                            return; 
                         }
 
                         try {
@@ -213,60 +219,53 @@
                     console.error("ERROR: Formulario 'procesarPagoForm' no encontrado.");
                 }
 
-                document.querySelectorAll('.update-quantity-form').forEach(form => {
-                    form.addEventListener('submit', async (event) => {
-                        event.preventDefault();
-                        const itemId = form.querySelector('input[name="itemId"]').value;
-                        const quantity = form.querySelector('input[name="quantity"]').value;
-
-                        try {
-                            const response = await fetch(`/user/carrito/update?itemId=${itemId}&quantity=${quantity}`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/x-www-form-urlencoded',
-                                }
-                            });
-                            const data = await response.json();
-
-                            if (data.success) {
-                                await fetchAndRenderCarrito();
-                                showModal(data.message, true, null);
-                            } else {
-                                showModal(data.message, false, data.redirectUrl);
-                            }
-                        } catch (error) {
-                            console.error('Error al actualizar cantidad AJAX:', error);
-                            showModal('Hubo un error al actualizar la cantidad.', false, null);
+            document.querySelectorAll('.remove-form').forEach(form => {
+                form.addEventListener('submit', async (event) => {
+                    event.preventDefault(); 
+                    const itemId = form.querySelector('input[name="itemId"]').value;
+                    const url = form.getAttribute('action');
+                    try {
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: new URLSearchParams({ itemId: itemId })
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            const itemRow = document.getElementById('item-row-' + itemId);
+                            if (itemRow) itemRow.remove(); 
+                        } else {
+                            showModal(data.message, false, null);
                         }
-                    });
+                    } catch (error) {
+                        showModal('Hubo un error al eliminar el ítem.', false, null);
+                    }
                 });
+            });
 
-                document.querySelectorAll('.remove-item-form').forEach(form => {
-                    form.addEventListener('submit', async (event) => {
-                        event.preventDefault();
-                        const itemId = form.querySelector('input[name="itemId"]').value;
-
-                        try {
-                            const response = await fetch(`/user/carrito/remove?itemId=${itemId}`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/x-www-form-urlencoded',
-                                }
-                            });
-                            const data = await response.json();
-
-                            if (data.success) {
-                                await fetchAndRenderCarrito();
-                                showModal(data.message, true, null);
-                            } else {
-                                showModal(data.message, false, data.redirectUrl);
-                            }
-                        } catch (error) {
-                            console.error('Error al eliminar ítem AJAX:', error);
-                            showModal('Hubo un error al eliminar el ítem.', false, null);
+            document.querySelectorAll('.update-form').forEach(form => {
+                form.addEventListener('submit', async (event) => {
+                    event.preventDefault(); 
+                    const itemId = form.querySelector('input[name="itemId"]').value;
+                    const quantity = form.querySelector('input[name="quantity"]').value;
+                    const url = form.getAttribute('action');
+                    try {
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: new URLSearchParams({ itemId: itemId, quantity: quantity })
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            window.location.reload(); 
+                        } else {
+                            showModal(data.message, false, null);
                         }
-                    });
+                    } catch (error) {
+                        showModal('Hubo un error al actualizar el carrito.', false, null);
+                    }
                 });
+            });
 
                 async function fetchAndRenderCarrito() {
                     try {
@@ -371,7 +370,7 @@
                         displayReclamacionMessage(data.message, data.success);
 
                         if (data.success) {
-                            reclamacionForm.reset(); // Limpia el formulario si es exitoso
+                            reclamacionForm.reset(); 
                         }
 
                     } catch (error) {
