@@ -1,48 +1,76 @@
 package com.UTP.Delivery.Integrador.Service;
 
-import com.UTP.Delivery.Integrador.Model.*;
-import com.UTP.Delivery.Integrador.Repository.OrdenVentaRepository;
-import com.UTP.Delivery.Integrador.Repository.DetalleOrdenVentaRepository;
-import com.UTP.Delivery.Integrador.Repository.CarritoRepository;
-import com.UTP.Delivery.Integrador.Repository.ItemCarritoRepository;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDateTime;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.ArrayList;
+
+import com.UTP.Delivery.Integrador.Model.Carrito;
+import com.UTP.Delivery.Integrador.Model.DetalleOrdenVenta;
+import com.UTP.Delivery.Integrador.Model.ItemCarrito;
+import com.UTP.Delivery.Integrador.Model.OrdenVenta;
+import com.UTP.Delivery.Integrador.Model.Producto;
+import com.UTP.Delivery.Integrador.Model.Ubicacion;
+import com.UTP.Delivery.Integrador.Model.User;
+import com.UTP.Delivery.Integrador.Repository.CarritoRepository;
+import com.UTP.Delivery.Integrador.Repository.DetalleOrdenVentaRepository;
+import com.UTP.Delivery.Integrador.Repository.ItemCarritoRepository;
+import com.UTP.Delivery.Integrador.Repository.OrdenVentaRepository;
+import com.UTP.Delivery.Integrador.Repository.ProductoRepository;
 
 @Service
 public class VentaService {
 
-    @Autowired
-    private OrdenVentaRepository ordenVentaRepository;
-    @Autowired
-    private DetalleOrdenVentaRepository detalleOrdenVentaRepository;
-    @Autowired
-    private CarritoRepository carritoRepository;
-    @Autowired
-    private ItemCarritoRepository itemCarritoRepository;
+    @Autowired private OrdenVentaRepository ordenVentaRepository;
+    @Autowired private DetalleOrdenVentaRepository detalleOrdenVentaRepository;
+    @Autowired private CarritoRepository carritoRepository;
+    @Autowired private ItemCarritoRepository itemCarritoRepository;
+    @Autowired private ProductoRepository productoRepository; 
 
     @Transactional
     public OrdenVenta procesarVentaDesdeCarrito(User usuario, Carrito carrito, Ubicacion ubicacionEntrega) {
-        if (carrito == null || carrito.getItems().isEmpty()) {
-            throw new IllegalArgumentException("El carrito está vacío. No se puede procesar una venta.");
+        
+        if (carrito == null || carrito.getId() == null) {
+            throw new IllegalArgumentException("El carrito es inválido.");
         }
         if (ubicacionEntrega == null) {
             throw new IllegalArgumentException("No se ha seleccionado una ubicación de entrega.");
         }
 
-        BigDecimal totalCarrito = carrito.getItems().stream()
-                .map(item -> item.getPrecioUnitarioAlMomento().multiply(BigDecimal.valueOf(item.getCantidad())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        Carrito carritoBloqueado = carritoRepository.findCarritoById(carrito.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Carrito no encontrado o no se pudo bloquear."));
+
+        if (carritoBloqueado.getItems() == null || carritoBloqueado.getItems().isEmpty()) {
+            throw new IllegalArgumentException("El carrito está vacío.");
+        }
+
+        List<ItemCarrito> itemsACopiar = new ArrayList<>(carritoBloqueado.getItems());
+        BigDecimal totalCarrito = BigDecimal.ZERO; 
 
         OrdenVenta ordenVenta = new OrdenVenta(usuario, LocalDateTime.now(), totalCarrito, ubicacionEntrega);
         ordenVenta = ordenVentaRepository.save(ordenVenta);
 
         List<DetalleOrdenVenta> detallesOrden = new ArrayList<>();
-        for (ItemCarrito itemCarrito : carrito.getItems()) {
+        
+        for (ItemCarrito itemCarrito : itemsACopiar) {
+            
+            if (itemCarrito.getProducto() != null) {
+                Producto producto = productoRepository.findById(itemCarrito.getProducto().getId())
+                        .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + itemCarrito.getProducto().getNombre()));
+
+                if (producto.getStock() < itemCarrito.getCantidad()) {
+                    throw new IllegalArgumentException("Stock insuficiente para: " + producto.getNombre());
+                }
+                
+                producto.setStock(producto.getStock() - itemCarrito.getCantidad());
+                productoRepository.save(producto);
+            }
+            
+
             DetalleOrdenVenta detalle = new DetalleOrdenVenta(
                     ordenVenta,
                     itemCarrito.getProducto(),
@@ -51,13 +79,19 @@ public class VentaService {
                     itemCarrito.getPrecioUnitarioAlMomento()
             );
             detallesOrden.add(detalle);
+            
+            totalCarrito = totalCarrito.add(
+                itemCarrito.getPrecioUnitarioAlMomento().multiply(BigDecimal.valueOf(itemCarrito.getCantidad()))
+            );
         }
-        ordenVenta.setItems(detallesOrden);
+        
         detalleOrdenVentaRepository.saveAll(detallesOrden);
+        
+        ordenVenta.setTotal(totalCarrito);
+        ordenVenta.setItems(detallesOrden);
+        ordenVentaRepository.save(ordenVenta);
 
-        itemCarritoRepository.deleteAll(carrito.getItems());
-        carrito.getItems().clear();
-        carritoRepository.save(carrito);
+        itemCarritoRepository.deleteByCarritoId(carritoBloqueado.getId());
 
         return ordenVenta;
     }
@@ -65,28 +99,14 @@ public class VentaService {
     @Transactional(readOnly = true)
     public List<OrdenVenta> getAllOrdenesVenta() {
         List<OrdenVenta> ordenes = ordenVentaRepository.findAll();
-
         for (OrdenVenta orden : ordenes) {
-            if (orden.getUsuario() != null) {
-                orden.getUsuario().getNombreCompleto();
-                orden.getUsuario().getCodigoEstudiante();
-                orden.getUsuario().getCorreo();
-            }
-
-            if (orden.getUbicacionEntrega() != null) {
-                orden.getUbicacionEntrega().getPiso();
-                orden.getUbicacionEntrega().getCodigoAula();
-            }
-
+            if (orden.getUsuario() != null) orden.getUsuario().getNombreCompleto();
+            if (orden.getUbicacionEntrega() != null) orden.getUbicacionEntrega().getPiso();
             if (orden.getItems() != null) {
                 orden.getItems().size();
                 for (DetalleOrdenVenta item : orden.getItems()) {
-                    if (item.getProducto() != null) {
-                        item.getProducto().getNombre();
-                    }
-                    if (item.getOferta() != null) {
-                        item.getOferta().getNombreOferta();
-                    }
+                    if (item.getProducto() != null) item.getProducto().getNombre();
+                    if (item.getOferta() != null) item.getOferta().getNombreOferta();
                 }
             }
         }

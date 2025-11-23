@@ -2,6 +2,7 @@ package com.UTP.Delivery.Integrador.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,14 +28,20 @@ public class SecurityConfig {
                 "/user/carrito/add",
                 "/user/carrito/update",
                 "/user/carrito/remove",
-                "/user/carrito/procesarPagoAjax"
+                "/user/carrito/procesarPagoAjax",
+                "/user/aula/save" 
             ))
-
             .authorizeHttpRequests(authz -> authz
-                .requestMatchers("/*.css", "/*.js", "/css/**", "/js/**", "/assets/**", "/uploads/**").permitAll()
-                .requestMatchers("/login", "/register-ajax").permitAll()
+
+                .requestMatchers(HttpMethod.GET, "/", "/user/home", "/user/compra", "/sobreNosotrosUsuario" , "/contactoUsuario").permitAll()
+                .requestMatchers("/*.css", "/*.js", "/css/**", "/js/**", "/assets/**", "/uploads/**").permitAll() 
+                .requestMatchers("/login", "/register-ajax").permitAll() 
+                .requestMatchers(HttpMethod.GET, "/user/carrito", "/user/aula").authenticated()
+
+                .requestMatchers(HttpMethod.POST, "/user/carrito/**", "/user/aula/save", "/user/reclamacion/enviar").authenticated()
+
                 .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
-                .requestMatchers("/user/**").hasAuthority("ROLE_USER")
+
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

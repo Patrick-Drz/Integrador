@@ -147,11 +147,7 @@ body {
 }
 
 .modal-hidden {
-    display: none !important;
-}
-
-.modal-hidden {
-    display: none !important;
+    display: none;
 }
 
 #myModal.modal {

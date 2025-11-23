@@ -1,134 +1,234 @@
-const container = document.getElementById("container");
-const registerBtn = document.getElementById("register");
-const loginBtn = document.getElementById("login");
+document.addEventListener('DOMContentLoaded', () => {
+    const container = document.getElementById("container");
+    const registerBtn = document.getElementById("register");
+    const loginBtn = document.getElementById("login");
 
-console.log("Container element:", container);
-console.log("Register button:", registerBtn);
-console.log("Login button:", loginBtn);
+    if (container && registerBtn && loginBtn) {
+        registerBtn.addEventListener("click", () => container.classList.add("active"));
+        loginBtn.addEventListener("click", () => container.classList.remove("active"));
+    }
 
-if (container && registerBtn && loginBtn) {
-  registerBtn.addEventListener("click", () => {
-    container.classList.add("active");
-    console.log("Register button clicked. 'active' class added.");
-  });
+    const modal = document.getElementById('myModal');
+    const closeButton = document.querySelector('#myModal .close-button');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalActionButton = document.getElementById('modalActionButton');
+    let currentRedirectUrl = null;
 
-  loginBtn.addEventListener("click", () => {
-    container.classList.remove("active");
-    console.log("Login button clicked. 'active' class removed.");
-  });
-  console.log("Panel toggle JavaScript loaded and listeners attached.");
-} else {
-  console.error("ERROR: One or more elements for panel toggle not found. Check HTML IDs.");
-}
-
-const modal = document.getElementById('myModal');
-const closeButton = document.querySelector('.close-button');
-const modalMessage = document.getElementById('modalMessage');
-const modalActionButton = document.getElementById('modalActionButton');
-
-let currentRedirectUrl = null;
-
-console.log("Modal element:", modal);
-console.log("Close button:", closeButton);
-console.log("Modal message element:", modalMessage);
-console.log("Modal action button:", modalActionButton);
-
-
-if (modal && closeButton && modalMessage && modalActionButton) {
-    console.log("Modal elements found. Initializing modal functions.");
-
-    function showModal(message, isSuccess, redirectAfterClose) {
-        console.log("showModal called with message:", message, "isSuccess:", isSuccess, "redirectAfterClose:", redirectAfterClose);
+    window.showModal = function(message, isSuccess, redirectAfterClose = null) {
+        if (!modal || !modalMessage) return;
         modalMessage.textContent = message;
-        if (isSuccess) {
-            modalMessage.classList.remove('error-message');
-            modalMessage.classList.add('success-message');
-        } else {
-            modalMessage.classList.remove('success-message');
-            modalMessage.classList.add('error-message');
-        }
-        modal.classList.remove('modal-hidden');
+        modalMessage.className = '';
+        modalMessage.classList.add(isSuccess ? 'success-message' : 'error-message');
         modal.style.display = 'flex';
         currentRedirectUrl = redirectAfterClose;
     }
 
     function closeModal() {
-        console.log("closeModal called.");
-        modal.classList.add('modal-hidden');
+        if (!modal) return;
         modal.style.display = 'none';
         if (currentRedirectUrl) {
-            console.log("Redirecting to:", currentRedirectUrl);
             window.location.href = currentRedirectUrl;
-        } else {
-            console.log("No redirect URL. Staying on current page.");
         }
     }
 
-    closeButton.addEventListener('click', closeModal);
-    modalActionButton.addEventListener('click', closeModal);
+    if (modal && closeButton && modalActionButton) {
+        closeButton.addEventListener('click', closeModal);
+        modalActionButton.addEventListener('click', closeModal);
+        window.addEventListener('click', (event) => { if (event.target === modal) closeModal(); });
+    }
 
-    window.addEventListener('click', (event) => {
-        if (event.target === modal) {
-            console.log("Clicked outside modal. Closing.");
-            closeModal();
-        }
-    });
-} else {
-    console.error("ERROR: One or more modal elements not found. Modal functionality may be broken. Check HTML IDs/Classes.");
-}
-
-const registerForm = document.getElementById('registerForm');
-const registerEmailInput = document.getElementById('registerEmail');
-const registerPasswordInput = document.getElementById('registerPassword');
-const registerNombreCompletoInput = document.getElementById('registerNombreCompleto');
-const registerCodigoEstudianteInput = document.getElementById('registerCodigoEstudiante');
-
-
-if (registerForm && registerEmailInput && registerPasswordInput && registerNombreCompletoInput && registerCodigoEstudianteInput) {
-    console.log("Register form elements found. Attaching submit listener.");
-    registerForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-
-        const email = registerEmailInput.value;
-        const password = registerPasswordInput.value;
-        const nombreCompleto = registerNombreCompletoInput.value;
-        const codigoEstudiante = registerCodigoEstudianteInput.value;
-
-        console.log("Attempting AJAX registration for:", email);
-        console.log("Nombre Completo:", nombreCompleto);
-        console.log("Código de Estudiante:", codigoEstudiante);
-
-        try {
-            const response = await fetch('/register-ajax', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams({
-                    registerEmail: email,
-                    registerPassword: password,
-                    registerNombreCompleto: nombreCompleto,
-                    registerCodigoEstudiante: codigoEstudiante
-                })
-            });
-
-            const data = await response.json();
-            console.log("AJAX response received:", data);
-
-            if (data.success) {
-                registerNombreCompletoInput.value = '';
-                registerCodigoEstudianteInput.value = '';
-                registerEmailInput.value = '';
-                registerPasswordInput.value = '';
-                console.log("Registration successful. Fields cleared.");
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
+        registerForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(registerForm);
+            const body = new URLSearchParams(formData);
+            try {
+                const response = await fetch('/register-ajax', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body });
+                if (!response.ok && !response.headers.get('content-type')?.includes('application/json')) {
+                     showModal('Error del servidor al registrar.', false, null); return;
+                }
+                const data = await response.json();
+                if (data.success) registerForm.reset();
+                showModal(data.message, data.success, null);
+            } catch (error) {
+                 if (error instanceof SyntaxError) showModal('Respuesta inesperada del servidor.', false, null);
+                 else showModal('Error de conexión al registrar.', false, null);
             }
-            showModal(data.message, data.success, null);
+        });
+    }
 
-        } catch (error) {
-            console.error('Error during AJAX registration:', error);
-            showModal('Hubo un error al procesar tu solicitud. Inténtalo de nuevo.', false, null);
-        }
+
+    document.querySelectorAll('.add-to-cart-form').forEach(form => {
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(form);
+            const body = new URLSearchParams(formData);
+            const url = '/user/carrito/add';
+
+            try {
+                const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body });
+
+                if (response.status === 403 || response.status === 401) {
+                    showModal("Primero debes iniciar sesión para realizar esta acción.", false, null);
+                    return;
+                }
+                if (response.ok) { 
+                    const data = await response.json();
+                    showModal(data.message, data.success, null);
+                } else {
+                     showModal('Error del servidor al añadir.', false, null);
+                }
+            } catch (error) {
+                showModal("Primero debes iniciar sesión para realizar esta acción.", false, null);
+            }
+        });
     });
-} else {
-    console.error("ERROR: Register form or its inputs (email, password, nombreCompleto, codigoEstudiante) not found. AJAX registration disabled.");
-}
+
+    document.querySelectorAll('.remove-form').forEach(form => {
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const itemId = form.querySelector('input[name="itemId"]').value;
+            const url = form.getAttribute('action');
+
+            try {
+                const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ itemId: itemId }) });
+
+                if (response.status === 403 || response.status === 401) {
+                    showModal("Debes iniciar sesión para modificar tu carrito.", false, '/login');
+                    return;
+                }
+                 if (!response.ok && !response.headers.get('content-type')?.includes('application/json')) {
+                     showModal('Error del servidor al eliminar.', false, null); return;
+                }
+                const data = await response.json();
+                if (data.success) {
+                    const itemRow = document.getElementById('item-row-' + itemId);
+                    if (itemRow) itemRow.remove();
+                } else {
+                    showModal(data.message, false, null);
+                }
+            } catch (error) {
+                if (error instanceof SyntaxError) showModal('Respuesta inesperada del servidor.', false, null);
+                 else showModal('Error al eliminar el ítem.', false, null);
+            }
+        });
+    });
+
+    document.querySelectorAll('.update-form').forEach(form => {
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const itemId = form.querySelector('input[name="itemId"]').value;
+            const quantity = form.querySelector('input[name="quantity"]').value;
+            const url = form.getAttribute('action');
+
+            try {
+                const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ itemId: itemId, quantity: quantity }) });
+
+                if (response.status === 403 || response.status === 401) {
+                    showModal("Debes iniciar sesión para modificar tu carrito.", false, '/login');
+                    return;
+                }
+                if (!response.ok && !response.headers.get('content-type')?.includes('application/json')) {
+                     showModal('Error del servidor al actualizar.', false, null); return;
+                }
+                const data = await response.json();
+                if (data.success) window.location.reload();
+                else showModal(data.message, false, null);
+            } catch (error) {
+                if (error instanceof SyntaxError) showModal('Respuesta inesperada del servidor.', false, null);
+                 else showModal('Error al actualizar el carrito.', false, null);
+            }
+        });
+    });
+
+    const procesarPagoForm = document.getElementById('procesarPagoForm');
+    if (procesarPagoForm) {
+        procesarPagoForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const url = '/user/carrito/procesarPagoAjax';
+            try {
+                const response = await fetch(url, { method: 'POST' });
+
+                if (response.status === 403 || response.status === 401) {
+                    showModal("Debes iniciar sesión para proceder al pago.", false, '/login');
+                    return;
+                }
+                if (!response.ok && !response.headers.get('content-type')?.includes('application/json')) {
+                     showModal('Error del servidor al pagar.', false, null); return;
+                }
+                const data = await response.json();
+                if (data.success) {
+                    const carritoContent = document.getElementById('carritoContent');
+                    if (carritoContent) carritoContent.innerHTML = '<div class="alert alert-info text-center mt-5"><p>Tu carrito está vacío.</p></div>';
+                }
+                showModal(data.message, data.success, null);
+            } catch (error) {
+                 if (error instanceof SyntaxError) showModal('Respuesta inesperada del servidor.', false, null);
+                 else showModal('Error al procesar el pago.', false, null);
+            }
+        });
+    }
+
+    const aulaForm = document.getElementById('aulaForm');
+     if (aulaForm) {
+        aulaForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(aulaForm);
+            const body = new URLSearchParams(formData);
+            const url = '/user/aula/save';
+
+            try {
+                const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body });
+
+                if (response.status === 403 || response.status === 401) {
+                    showModal("Debes iniciar sesión para guardar tu ubicación.", false, '/login');
+                    return;
+                }
+                 if (response.redirected || response.ok) {
+                     window.location.href = response.redirected ? response.url : window.location.href;
+                     return;
+                 } else {
+                     showModal('Error del servidor al guardar ubicación.', false, null); return;
+                 }
+            } catch (error) {
+                 showModal('Error al guardar la ubicación.', false, null);
+            }
+        });
+    }
+
+    const reclamacionForm = document.getElementById('reclamacionForm');
+    if (reclamacionForm) {
+        reclamacionForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(reclamacionForm);
+            const jsonData = Object.fromEntries(formData.entries());
+            const url = '/user/reclamacion/enviar';
+
+            try {
+                const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(jsonData) });
+
+                if (response.status === 403 || response.status === 401) {
+                    showModal("Primero debes iniciar sesión para realizar esta acción.", false, null);
+                    const modalBootstrap = bootstrap.Modal.getInstance(document.getElementById('reclamacionModal'));
+                    if(modalBootstrap) modalBootstrap.hide();
+                    return;
+                }
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const modalBootstrap = bootstrap.Modal.getInstance(document.getElementById('reclamacionModal'));
+                    if (modalBootstrap) modalBootstrap.hide();
+                    if (data.success) reclamacionForm.reset();
+                    showModal(data.message, data.success, null);
+                } else {
+                    showModal('Error del servidor al enviar reclamación.', false, null);
+                }
+            } catch (error) {
+                showModal("Primero debes iniciar sesión para realizar esta acción.", false, null);
+                const modalBootstrap = bootstrap.Modal.getInstance(document.getElementById('reclamacionModal'));
+                if(modalBootstrap) modalBootstrap.hide();
+            }
+        });
+    }
+});

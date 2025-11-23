@@ -1,19 +1,41 @@
 <footer th:fragment="appFooter" class="footer mt-auto py-3 bg-dark text-white" xmlns:th="http://www.w3.org/1999/xhtml">
   <div class="container">
     <div class="row">
-      <div class="col-md-6">
-        <h5><i class="fa-solid fa-utensils"></i> DeliveryUTP</h5>
-        <p>Tu mejor opción para pedir comida dentro del campus de la UTP. Ofrecemos una variedad de productos frescos y ofertas especiales para que disfrutes de tus comidas al máximo.</p>
-        <p>&copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2024</span> DeliveryUTP. Todos los derechos reservados.</p>
+      
+      <div class="col-md-4">
+        <h5><i class="fa-solid fa-utensils"></i> Altum Caffe</h5>
+        <p>Tu mejor opción para pedir comida dentro del campus de la UTP. Ofrecemos una variedad de productos frescos y ofertas especiales.</p>
+        <p>&copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2024</span> Altum Caffe. Todos los derechos reservados.</p>
       </div>
-      <div class="col-md-6 text-md-end">
+
+      <div class="col-md-4 mt-3 mt-md-0">
+        <h5><i class="fa-solid fa-share-alt"></i> Síguenos</h5>
+        <p>Mantente al tanto de nuestras últimas ofertas y noticias.</p>
+        
+        <div class="d-flex social-links">
+            <a href="https://www.facebook.com" target="_blank" class="text-white me-3">
+                <i class="fab fa-facebook-f fa-2x"></i>
+            </a>
+            <a href="https://www.instagram.com" target="_blank" class="text-white me-3">
+                <i class="fab fa-instagram fa-2x"></i>
+            </a>
+            <a href="https://www.twitter.com" target="_blank" class="text-white me-3">
+                <i class="fab fa-twitter fa-2x"></i>
+            </a>
+            <a href="https://www.tiktok.com" target="_blank" class="text-white">
+                <i class="fab fa-tiktok fa-2x"></i>
+            </a>
+        </div>
+      </div>
+      
+      <div class="col-md-4 text-md-end mt-3 mt-md-0">
         <h5><i class="fa-solid fa-comments"></i> ¿Tienes algún problema?</h5>
         <p>Si tienes alguna queja, sugerencia o reclamación, no dudes en contactarnos.</p>
         <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#reclamacionModal">
           <i class="fa-solid fa-file-alt"></i> Libro de Reclamaciones
         </button>
       </div>
+      
     </div>
   </div>
 </footer>
-

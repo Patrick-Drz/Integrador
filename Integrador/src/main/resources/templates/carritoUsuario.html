@@ -158,106 +158,72 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
         <script src="/script.js"></script>
         <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const procesarPagoForm = document.getElementById('procesarPagoForm');
-                const ubicacionUsuarioNull = document.getElementById('ubicacionVacia');
-                const ubicacionUsuarioDetalle = document.getElementById('ubicacionDetalle');
-                const carritoContent = document.getElementById('carritoContent');
-                const carritoVacioContent = document.getElementById('carritoVacioContent');
-                const procesarPagoBtn = document.getElementById('procesarPagoBtn');
+        document.addEventListener('DOMContentLoaded', () => {
 
-                if (procesarPagoForm) {
-                    procesarPagoForm.addEventListener('submit', async (event) => {
-                        event.preventDefault();
+            // --- LÓGICA PARA PROCESAR PAGO ---
+            const procesarPagoForm = document.getElementById('procesarPagoForm');
+            if (procesarPagoForm) {
+                procesarPagoForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    const procesarPagoBtn = document.getElementById('procesarPagoBtn');
+                    procesarPagoBtn.disabled = true;
+                    procesarPagoBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
 
-                        procesarPagoBtn.disabled = true;
-                        procesarPagoBtn.textContent = 'Procesando...';
-
-                        if (ubicacionUsuarioNull && !ubicacionUsuarioNull.hidden) {
-                            showModal('No tienes una ubicación de entrega registrada. Por favor, añádela antes de procesar el pago.', false, null);
-                            procesarPagoBtn.disabled = false;
-                            procesarPagoBtn.innerHTML = '<i class="fa-solid fa-cash-register"></i> Proceder al Pago';
-                            return; 
-                        }
-
-                        try {
-                            const response = await fetch('/user/carrito/procesarPagoAjax', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/x-www-form-urlencoded',
-                                },
-                            });
-
-                            const data = await response.json();
-                            console.log("Respuesta AJAX de procesar pago:", data);
-
-                            if (data.success) {
-                                showModal(data.message, true, null);
-                                if (carritoContent) {
-                                    carritoContent.innerHTML = '';
-                                    carritoContent.style.display = 'none';
-                                }
-                                if (carritoVacioContent) {
-                                    carritoVacioContent.style.display = 'block';
-                                }
-                                if (procesarPagoBtn) {
-                                     procesarPagoBtn.disabled = true;
-                                }
-
-                            } else {
-                                showModal(data.message, false, data.redirectUrl);
-                            }
-                        } catch (error) {
-                            console.error('Error durante el procesamiento del pago AJAX:', error);
-                            showModal('Hubo un error al procesar tu solicitud de pago. Inténtalo de nuevo.', false, null);
-                        } finally {
-                            procesarPagoBtn.disabled = false;
-                            procesarPagoBtn.innerHTML = '<i class="fa-solid fa-cash-register"></i> Proceder al Pago';
-                        }
-                    });
-                } else {
-                    console.error("ERROR: Formulario 'procesarPagoForm' no encontrado.");
-                }
-
-            document.querySelectorAll('.remove-form').forEach(form => {
-                form.addEventListener('submit', async (event) => {
-                    event.preventDefault(); 
-                    const itemId = form.querySelector('input[name="itemId"]').value;
-                    const url = form.getAttribute('action');
                     try {
-                        const response = await fetch(url, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                            body: new URLSearchParams({ itemId: itemId })
+                        const response = await fetch('/user/carrito/procesarPagoAjax', { 
+                            method: 'POST' 
                         });
-                        const data = await response.json();
-                        if (data.success) {
-                            const itemRow = document.getElementById('item-row-' + itemId);
-                            if (itemRow) itemRow.remove(); 
-                        } else {
-                            showModal(data.message, false, null);
+
+                        if (response.status === 403 || response.status === 401) {
+                            showModal("Debes iniciar sesión para proceder al pago.", false, '/login');
+                            return;
                         }
+
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            const carritoContent = document.getElementById('carritoContent');
+                            const carritoVacioContent = document.getElementById('carritoVacioContent');
+                            if (carritoContent) carritoContent.style.display = 'none';
+                            if (carritoVacioContent) carritoVacioContent.style.display = 'block';
+                        }
+                        showModal(data.message, data.success, null); // Muestra el modal de éxito/error
+
                     } catch (error) {
-                        showModal('Hubo un error al eliminar el ítem.', false, null);
+                        showModal('Hubo un error al procesar tu solicitud de pago.', false, null);
+                    } finally {
+                         // Asegurarse de que el botón se reactive solo si no fue exitoso
+                        if (procesarPagoBtn.disabled) {
+                           procesarPagoBtn.disabled = false;
+                           procesarPagoBtn.innerHTML = '<i class="fa-solid fa-cash-register"></i> Proceder al Pago';
+                        }
                     }
                 });
-            });
+            }
 
+            // --- LÓGICA PARA ACTUALIZAR CANTIDAD (Recarga limpia) ---
             document.querySelectorAll('.update-form').forEach(form => {
                 form.addEventListener('submit', async (event) => {
-                    event.preventDefault(); 
+                    event.preventDefault();
                     const itemId = form.querySelector('input[name="itemId"]').value;
                     const quantity = form.querySelector('input[name="quantity"]').value;
                     const url = form.getAttribute('action');
+
                     try {
                         const response = await fetch(url, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                             body: new URLSearchParams({ itemId: itemId, quantity: quantity })
                         });
+
+                        if (response.status === 403 || response.status === 401) {
+                            showModal("Debes iniciar sesión para modificar tu carrito.", false, '/login');
+                            return;
+                        }
+
                         const data = await response.json();
                         if (data.success) {
-                            window.location.reload(); 
+                            window.location.reload(); // Recarga la página limpiamente
                         } else {
                             showModal(data.message, false, null);
                         }
@@ -267,96 +233,60 @@
                 });
             });
 
-                async function fetchAndRenderCarrito() {
+            // --- LÓGICA PARA ELIMINAR ÍTEMS (Sin recargar) ---
+            document.querySelectorAll('.remove-form').forEach(form => {
+                form.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    const itemId = form.querySelector('input[name="itemId"]').value;
+                    const url = form.getAttribute('action');
+
                     try {
-                        const response = await fetch('/user/carrito-fragment');
-                        const html = await response.text();
-                        const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = html;
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: new URLSearchParams({ itemId: itemId })
+                        });
 
-                        const newCarritoContent = tempDiv.querySelector('#carritoContent');
-                        const newCarritoVacioContent = tempDiv.querySelector('#carritoVacioContent');
-                        const newTotalCarritoDisplay = tempDiv.querySelector('#totalCarritoDisplay');
-                        const newUbicacionDetalle = tempDiv.querySelector('#ubicacionDetalle');
-                        const newUbicacionVacia = tempDiv.querySelector('#ubicacionVacia');
-                        const newProcesarPagoBtn = tempDiv.querySelector('#procesarPagoBtn');
-
-
-                        if (newCarritoContent) {
-                            carritoContent.innerHTML = newCarritoContent.innerHTML;
-                            carritoContent.style.display = newCarritoContent.style.display;
-                        } else {
-                            carritoContent.innerHTML = '';
-                            carritoContent.style.display = 'none';
+                        if (response.status === 403 || response.status === 401) {
+                            showModal("Debes iniciar sesión para modificar tu carrito.", false, '/login');
+                            return;
                         }
 
-                        if (newCarritoVacioContent) {
-                            carritoVacioContent.innerHTML = newCarritoVacioContent.innerHTML;
-                            carritoVacioContent.style.display = newCarritoVacioContent.style.display;
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            const itemRow = document.getElementById('item-row-' + itemId);
+                            if (itemRow) itemRow.remove(); // Elimina la fila de la vista
+                            showModal(data.message, true, null); // Muestra éxito
                         } else {
-                            carritoVacioContent.style.display = 'none';
+                            showModal(data.message, false, null); // Muestra error
                         }
-
-                        if (newUbicacionDetalle) {
-                            ubicacionUsuarioDetalle.innerHTML = newUbicacionDetalle.innerHTML;
-                            ubicacionUsuarioDetalle.style.display = newUbicacionDetalle.style.display;
-                        } else {
-                            ubicacionUsuarioDetalle.style.display = 'none';
-                        }
-
-                        if (newUbicacionVacia) {
-                            ubicacionUsuarioVacia.innerHTML = newUbicacionVacia.innerHTML;
-                            ubicacionUsuarioVacia.style.display = newUbicacionVacia.style.display;
-                        } else {
-                            ubicacionUsuarioVacia.style.display = 'none';
-                        }
-
-                        if (newProcesarPagoBtn) {
-                             procesarPagoBtn.disabled = newProcesarPagoBtn.disabled;
-                             procesarPagoBtn.innerHTML = newProcesarPagoBtn.innerHTML;
-                        } else {
-                            procesarPagoBtn.disabled = true;
-                        }
-
-
                     } catch (error) {
-                        console.error('Error al recargar el contenido del carrito:', error);
+                        showModal('Hubo un error al eliminar el ítem.', false, null);
                     }
-                }
+                });
             });
-            console.log("Script de formulario de reclamación cargado (en página principal).");
+
+            // --- LÓGICA PARA EL FORMULARIO DE RECLAMACIÓN ---
             const reclamacionForm = document.getElementById('reclamacionForm');
-            const reclamacionMessageDiv = document.getElementById('reclamacionMessage');
-
-            function displayReclamacionMessage(message, isSuccess) {
-                if (reclamacionMessageDiv) {
-                    reclamacionMessageDiv.textContent = message;
-                    reclamacionMessageDiv.classList.remove('text-success', 'text-danger');
-                    if (isSuccess) {
-                        reclamacionMessageDiv.classList.add('text-success');
-                    } else {
-                        reclamacionMessageDiv.classList.add('text-danger');
-                    }
-                    setTimeout(() => {
-                        reclamacionMessageDiv.textContent = '';
-                        reclamacionMessageDiv.classList.remove('text-success', 'text-danger');
-                    }, 5000);
-                }
-            }
-
             if (reclamacionForm) {
+                const reclamacionMessageDiv = document.getElementById('reclamacionMessage');
+                
+                // Tu función original para mostrar el mensaje DENTRO del modal de reclamación
+                function displayReclamacionMessage(message, isSuccess) {
+                    if (reclamacionMessageDiv) {
+                        reclamacionMessageDiv.textContent = message;
+                        reclamacionMessageDiv.className = isSuccess ? 'mt-3 text-center text-success' : 'mt-3 text-center text-danger';
+                        setTimeout(() => { reclamacionMessageDiv.textContent = ''; }, 5000);
+                    }
+                }
+
                 reclamacionForm.addEventListener('submit', async (event) => {
                     event.preventDefault();
-                    console.log("Evento submit de reclamacionForm disparado.");
-
-                    if (reclamacionMessageDiv) {
-                        reclamacionMessageDiv.textContent = '';
-                        reclamacionMessageDiv.classList.remove('text-success', 'text-danger');
-                    }
-
+                    if (reclamacionMessageDiv) reclamacionMessageDiv.textContent = '';
+                    
                     const formData = new FormData(reclamacionForm);
-                    const jsonData = {};
-                    formData.forEach((value, key) => { jsonData[key] = value; });
+                    const jsonData = Object.fromEntries(formData.entries());
 
                     try {
                         const response = await fetch('/user/reclamacion/enviar', {
@@ -364,23 +294,36 @@
                             headers: { 'Content-Type': 'application/json', },
                             body: JSON.stringify(jsonData),
                         });
+
+                        if (response.status === 403 || response.status === 401) {
+                            // Cierra el modal de Bootstrap
+                            const modalBootstrap = bootstrap.Modal.getInstance(document.getElementById('reclamacionModal'));
+                            if(modalBootstrap) modalBootstrap.hide();
+                            // Muestra el modal genérico de "debes iniciar sesión"
+                            showModal("Debes iniciar sesión para enviar una reclamación.", false, '/login');
+                            return;
+                        }
+
                         const data = await response.json();
-                        console.log("Respuesta AJAX de reclamación:", data);
-
-                        displayReclamacionMessage(data.message, data.success);
-
+                        
                         if (data.success) {
-                            reclamacionForm.reset(); 
+                            displayReclamacionMessage(data.message, true);
+                            reclamacionForm.reset();
+                            // Opcional: Cierra el modal de Bootstrap después de un éxito
+                            setTimeout(() => {
+                                const modalBootstrap = bootstrap.Modal.getInstance(document.getElementById('reclamacionModal'));
+                                if(modalBootstrap) modalBootstrap.hide();
+                            }, 2000); // Cierra después de 2 seg
+                        } else {
+                            displayReclamacionMessage(data.message, false);
                         }
 
                     } catch (error) {
-                        console.error('Error al enviar la reclamación:', error);
-                        displayReclamacionMessage('Hubo un error al enviar tu reclamación. Inténtalo de nuevo más tarde.', false);
+                        displayReclamacionMessage('Hubo un error al enviar tu reclamación.', false);
                     }
                 });
-            } else {
-                console.error("ERROR: reclamacionForm no encontrado en la página. El listener de submit no se adjuntó.");
             }
-        </script>
+        });
+    </script>
     </body>
 </html>

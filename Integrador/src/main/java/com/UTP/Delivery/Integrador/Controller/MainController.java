@@ -9,8 +9,8 @@ import jakarta.servlet.http.HttpServletResponse;
 public class MainController {
 
     @GetMapping("/")
-    public String redirectToLogin() {
-        return "redirect:/login";
+    public String showIndexUsuario() {
+        return "indexUsuario"; 
     }
     @GetMapping("/indexUsuario")
     public String indexUsuarioPage() {
@@ -23,6 +23,10 @@ public class MainController {
     @GetMapping("/sobreNosotrosUsuario")
     public String sobreNosotrosUsuarioPage() {
         return "sobreNosotrosUsuario";
+    }
+    @GetMapping("/contactoUsuario")
+    public String contactoUsuarioPage() {
+        return "contactoUsuario";
     }
     @GetMapping("/indexAdmin")
     public String indexAdminPage() { return "indexAdmin"; }

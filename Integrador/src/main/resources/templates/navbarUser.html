@@ -1,46 +1,56 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-  <head>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
     <meta charset="UTF-8">
-    <title>Fragmento de Barra de Navegación de Usuario</title>
-  </head>
-  <body>
+    <title>Navbar Usuario</title>
+</head>
+<body>
     <nav th:fragment="userNavbar" class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-      <div class="container-fluid">
-        <a class="navbar-brand" th:href="@{/indexUsuario}">
-          <img src="/assets/logo.png" alt="Logo de Inicio" width="40" height="32" class="d-inline-block align-text-top">
-        </a>
+        <div class="container-fluid">
+            <a class="navbar-brand" th:href="@{/}">
+                <img src="/assets/altum.png" alt="Logo" width="40" height="32" class="d-inline-block align-text-top">
+            </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#userNavbarContent"
-                aria-controls="userNavbarContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#userNavbarContent" aria-controls="userNavbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-        <div class="collapse navbar-collapse" id="userNavbarContent">
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item d-lg-none"> <a class="nav-link" aria-current="page" th:href="@{/indexUsuario}">Inicio</a>
-            </li>
+            <div class="collapse navbar-collapse" id="userNavbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item d-lg-none"><a class="nav-link" aria-current="page" th:href="@{/}">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/user/compra}">Comprar</a></li>
+                    
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <a class="nav-link" th:href="@{/user/aula}">Tu Aula</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <a class="nav-link" th:href="@{/user/carrito}">Carrito</a>
+                    </li>
 
-            <li class="nav-item">
-              <a class="nav-link" th:href="@{/user/compra}">Comprar</a> </li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/sobreNosotrosUsuario}">Nosotros</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/contactoUsuario}">Contactanos</a></li>
+                </ul>
 
-            <li class="nav-item">
-              <a class="nav-link" th:href="@{/user/aula}">Tu Aula</a> </li>
-            <li class="nav-item">
-              <a class="nav-link" th:href="@{/user/carrito}">Carrito</a> </li>
-            <li class="nav-item">
-              <a class="nav-link" th:href="@{/sobreNosotrosUsuario}">Nosotros</a>
-            </li>
-          </ul>
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <button type="button" class="nav-link btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
-                Cerrar Sesión
-              </button>
-            </li>
-          </ul>
+                <div class="ms-auto d-flex align-items-center">
+
+                    <div sec:authorize="isAnonymous()">
+                        <a th:href="@{/login}" class="btn btn-outline-light me-2">Iniciar Sesión</a>
+                    </div>
+
+                    <div sec:authorize="isAuthenticated()">
+                        <span class="navbar-text text-light me-3" th:if="${nombreCompletoUsuario}"> Hola, <span th:text="${nombreCompletoUsuario}">Usuario</span>
+                        </span>
+                        <span class="navbar-text text-light me-3" th:unless="${nombreCompletoUsuario}">
+                            Hola, <span sec:authentication="principal.username">Usuario</span>
+                        </span>
+
+                        <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                            Cerrar Sesión
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </nav>
-  </body>
+</body>
 </html>

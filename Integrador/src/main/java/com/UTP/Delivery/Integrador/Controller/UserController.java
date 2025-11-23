@@ -7,9 +7,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import java.security.Principal; 
+import java.security.Principal;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -17,25 +16,17 @@ import java.util.Optional;
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private CarritoService carritoService;
-    @Autowired
-    private UbicacionService ubicacionService;
-    @Autowired
-    private ProductoService productoService;
-    @Autowired
-    private OfertaService ofertaService;
-    @Autowired
-    private VentaService ventaService;
-    @Autowired
-    private ReclamacionService reclamacionService;
+    @Autowired private UserService userService;
+    @Autowired private CarritoService carritoService;
+    @Autowired private UbicacionService ubicacionService;
+    @Autowired private ProductoService productoService;
+    @Autowired private OfertaService ofertaService;
+    @Autowired private VentaService ventaService;
+    @Autowired private ReclamacionService reclamacionService;
+    @Autowired private GlobalControllerAdvice globalControllerAdvice;
 
-    @GetMapping("/home")
-    public String userHome(Principal principal, Model model) {
-        User currentUser = userService.getUserByCorreo(principal.getName());
-        model.addAttribute("user", currentUser);
+    @GetMapping({"/", "/home"})
+    public String userHome() {
         return "indexUsuario";
     }
 
@@ -46,9 +37,8 @@ public class UserController {
             model.addAttribute("ofertas", ofertaService.getAllOfertas());
             return "compraUsuario";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error al cargar los productos y ofertas: " + e.getMessage());
-            e.printStackTrace();
-            return "redirect:/user/home";
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al cargar productos.");
+            return "redirect:/";
         }
     }
 
@@ -61,57 +51,50 @@ public class UserController {
             model.addAttribute("ubicacion", ubicacionActualOptional.orElse(new Ubicacion()));
             return "aulaUsuario";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error al cargar la página del aula: " + e.getMessage());
-            e.printStackTrace();
-            return "redirect:/user/home";
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al cargar el aula.");
+            return "redirect:/";
         }
-    }
-
-    @PostMapping("/aula/save")
-    public String saveUbicacion(@RequestParam("piso") String piso,
-                                @RequestParam("codigoAula") String codigoAula,
-                                @RequestParam(value = "id", required = false) Long ubicacionId,
-                                Principal principal,
-                                RedirectAttributes redirectAttributes) {
-        try {
-            User currentUser = userService.getUserByCorreo(principal.getName());
-            ubicacionService.saveOrUpdateUbicacion(currentUser, ubicacionId, piso, codigoAula);
-            redirectAttributes.addFlashAttribute("successMessage", "Ubicación guardada exitosamente!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error al guardar la ubicación: " + e.getMessage());
-            e.printStackTrace();
-        }
-        return "redirect:/user/aula";
     }
 
     @GetMapping("/carrito")
     public String showCarrito(Principal principal, Model model, RedirectAttributes redirectAttributes) {
-        try {
+         try {
             User currentUser = userService.getUserByCorreo(principal.getName());
             model.addAttribute("user", currentUser);
             Carrito carrito = carritoService.getOrCreateCarritoForUser(currentUser);
             model.addAttribute("carrito", carrito);
             model.addAttribute("totalCarrito", carritoService.calcularTotalCarrito(carrito));
             Optional<Ubicacion> ubicacionOptional = ubicacionService.getUbicacionPrincipalByUser(currentUser);
-            if (ubicacionOptional.isPresent()) {
-                model.addAttribute("ubicacionUsuario", ubicacionOptional.get());
-            } else {
-                model.addAttribute("ubicacionUsuario", null);
-                model.addAttribute("infoMessage", "No tienes una ubicación registrada. Por favor, añade una.");
-            }
+            model.addAttribute("ubicacionUsuario", ubicacionOptional.orElse(null));
+            if (ubicacionOptional.isEmpty()) model.addAttribute("infoMessage", "No tienes ubicación registrada.");
             return "carritoUsuario";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error al cargar el carrito: " + e.getMessage());
-            e.printStackTrace();
-            return "redirect:/user/home";
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al cargar el carrito.");
+            return "redirect:/";
         }
+    }
+
+    @PostMapping("/aula/save")
+    public String saveUbicacion(@RequestParam String piso,
+                                @RequestParam String codigoAula,
+                                @RequestParam(required = false) Long id,
+                                Principal principal,
+                                RedirectAttributes redirectAttributes) {
+        try {
+            User currentUser = userService.getUserByCorreo(principal.getName());
+            ubicacionService.saveOrUpdateUbicacion(currentUser, id, piso, codigoAula);
+            redirectAttributes.addFlashAttribute("successMessage", "Ubicación guardada.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al guardar ubicación.");
+        }
+        return "redirect:/user/aula";
     }
 
     @PostMapping("/carrito/add")
     @ResponseBody
-    public Map<String, Object> addItemToCarritoAjax(@RequestParam(value = "productoId", required = false) Long productoId,
-                                                    @RequestParam(value = "ofertaId", required = false) Long ofertaId,
-                                                    @RequestParam("cantidad") Integer cantidad,
+    public Map<String, Object> addItemToCarritoAjax(@RequestParam(required = false) Long productoId,
+                                                    @RequestParam(required = false) Long ofertaId,
+                                                    @RequestParam Integer cantidad,
                                                     Principal principal) {
         Map<String, Object> response = new HashMap<>();
         try {
@@ -119,19 +102,18 @@ public class UserController {
             Carrito carrito = carritoService.getOrCreateCarritoForUser(currentUser);
             carritoService.addItemToCarrito(carrito.getId(), productoId, ofertaId, cantidad);
             response.put("success", true);
-            response.put("message", "Ítem(s) añadido(s) al carrito.");
+            response.put("message", "Ítem(s) añadido(s).");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "Error al añadir ítem al carrito: " + e.getMessage());
-            e.printStackTrace();
+            response.put("message", e.getMessage());
         }
         return response;
     }
 
-@PostMapping("/carrito/update")
-    @ResponseBody
-    public Map<String, Object> updateItemQuantity(@RequestParam("itemId") Long itemId,
-                                                  @RequestParam("quantity") Integer quantity) {
+    @PostMapping("/carrito/update")
+    @ResponseBody // CORREGIDO: Devuelve JSON
+    public Map<String, Object> updateItemQuantity(@RequestParam Long itemId,
+                                                  @RequestParam Integer quantity) {
         Map<String, Object> response = new HashMap<>();
         try {
             carritoService.updateItemQuantity(itemId, quantity);
@@ -139,22 +121,23 @@ public class UserController {
             response.put("message", "Cantidad actualizada.");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "Error al actualizar la cantidad.");
+            response.put("message", e.getMessage());
         }
         return response;
     }
 
     @PostMapping("/carrito/remove")
-    @ResponseBody
-    public Map<String, Object> removeItemFromCarrito(@RequestParam("itemId") Long itemId) {
+    @ResponseBody // CORREGIDO: Devuelve JSON
+    public Map<String, Object> removeItemFromCarrito(@RequestParam Long itemId) {
         Map<String, Object> response = new HashMap<>();
         try {
             carritoService.removeItemFromCarrito(itemId);
             response.put("success", true);
-            response.put("message", "Ítem eliminado del carrito.");
+            response.put("message", "Ítem eliminado.");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "Hubo un error al eliminar el ítem.");
+            response.put("message", "Error al eliminar.");
+            e.printStackTrace();
         }
         return response;
     }
@@ -170,20 +153,18 @@ public class UserController {
 
             if (ubicacionOptional.isEmpty()) {
                 response.put("success", false);
-                response.put("message", "No tienes una ubicación de entrega registrada. Por favor, añádela antes de procesar el pago.");
-                return response;
+                response.put("message", "Ubicación no registrada."); return response;
             }
-            if (carrito.getItems().isEmpty()) {
+            if (carrito.getItems() == null || carrito.getItems().isEmpty()) {
                 response.put("success", false);
-                response.put("message", "Tu carrito está vacío. No se puede procesar un pago.");
-                return response;
+                response.put("message", "Carrito vacío."); return response;
             }
             OrdenVenta ordenCreada = ventaService.procesarVentaDesdeCarrito(currentUser, carrito, ubicacionOptional.get());
             response.put("success", true);
-            response.put("message", "¡Pago procesado exitosamente! Tu orden #" + ordenCreada.getId() + " ha sido registrada.");
+            response.put("message", "Pago exitoso! Orden #" + ordenCreada.getId());
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "Error al procesar el pago: " + e.getMessage());
+            response.put("message", "Error al procesar pago: " + e.getMessage());
             e.printStackTrace();
         }
         return response;
@@ -196,10 +177,10 @@ public class UserController {
         try {
             Reclamacion reclamacionGuardada = reclamacionService.guardarReclamacion(reclamacion);
             response.put("success", true);
-            response.put("message", "¡Reclamación enviada con éxito! Nos pondremos en contacto pronto.");
+            response.put("message", "Reclamación enviada.");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "Error al enviar la reclamación: " + e.getMessage());
+            response.put("message", "Error al enviar reclamación.");
             e.printStackTrace();
         }
         return response;

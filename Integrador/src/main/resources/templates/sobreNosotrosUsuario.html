@@ -25,6 +25,36 @@
                 font-size: 2rem;
                 color: #007bff;
             }
+            .team-header-title {
+                color: #007bff !important; 
+                font-size: 2.5rem;
+                font-weight: bold;
+                margin-bottom: 4rem; 
+            }
+            .team-member-circle {
+                width: 120px; 
+                height: 120px; 
+                overflow: hidden; 
+                border-radius: 50%;
+                border: 2px solid #ccc; 
+                margin-bottom: 5px; 
+            }
+            .team-member-circle img {
+                width: 100%; 
+                height: 100%; 
+                object-fit: cover;
+            }
+            .team-member-name-upper {
+                color: #555; 
+                font-size: 0.9rem;
+                margin-bottom: 0.2rem;
+            }
+            .team-member-name-lower {
+                color: #000 !important; 
+                font-weight: bold;
+                font-size: 1rem;
+                margin-top: 0.2rem;
+            }
         </style>
     </head>
     <body>
@@ -45,6 +75,63 @@
                 </div>
                 <div class="col-lg-6 text-center">
                     <img th:src="@{/assets/img.png}" class="img-fluid rounded-3 shadow" alt="Taza de café">
+                </div>
+            </div>
+
+            <hr class="my-5">
+
+            <div class="container my-5">
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <h2 class="team-header-title">EL EQUIPO</h2>
+                    </div>
+                    
+                    <div class="col-12">
+                        <div class="row justify-content-center g-4">
+                            
+                            <div class="col-6 col-sm-4 col-md-2 text-center">
+                                <div class="team-member-circle mx-auto">
+                                    <img th:src="@{/assets/piero_moran.jpg}" class="img-fluid rounded-circle" alt="Piero Moran Diaz">
+                                </div>
+                                <p class="team-member-name-lower">PIERO MORAN DIAZ</p>
+                            </div>
+                            
+                            <div class="col-6 col-sm-4 col-md-2 text-center">
+                                <div class="team-member-circle mx-auto">
+                                    <img th:src="@{/assets/sin_foto.webp}" class="img-fluid rounded-circle" alt="Gustavo Chamana Oncebay">
+                                </div>
+                                <p class="team-member-name-lower">GUSTAVO CHAMANA ONCEBAY</p>
+                            </div>
+                            
+                            <div class="col-6 col-sm-4 col-md-2 text-center">
+                                <div class="team-member-circle mx-auto">
+                                    <img th:src="@{/assets/sin_foto.webp}" class="img-fluid rounded-circle" alt="Samuel Bellido De La Cruz">
+                                </div>
+                                <p class="team-member-name-lower">SAMUEL BELLIDO DE LA CRUZ</p>
+                            </div>
+
+                            <div class="col-6 col-sm-4 col-md-2 text-center">
+                                <div class="team-member-circle mx-auto" style="border-color: #000;">
+                                    <img th:src="@{/assets/patrick_delaguila.jpg}" class="img-fluid rounded-circle" alt="Patrick Del Aguila Rodriguez">
+                                </div>
+                                <p class="team-member-name-lower">PATRICK DEL AGUILA RODRIGUEZ</p>
+                            </div>
+                            
+                            <div class="col-6 col-sm-4 col-md-2 text-center">
+                                <div class="team-member-circle mx-auto">
+                                    <img th:src="@{/assets/bill_huarcaya.png}" class="img-fluid rounded-circle" alt="Bill Huarcaya Huamani">
+                                </div>
+                                <p class="team-member-name-lower">BILL HUARCAYA HUAMANI</p>
+                            </div>
+                            
+                            <div class="col-6 col-sm-4 col-md-2 text-center">
+                                <div class="team-member-circle mx-auto">
+                                    <img th:src="@{/assets/sin_foto.webp}" class="img-fluid rounded-circle" alt="Adrian Carpio Apaza">
+                                </div>
+                                <p class="team-member-name-lower">ADRIAN CARPIO APAZA</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
