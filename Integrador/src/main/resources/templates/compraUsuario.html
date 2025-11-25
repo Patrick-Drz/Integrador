@@ -160,55 +160,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
     <script src="/script.js"></script>
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-          const addToCartForms = document.querySelectorAll('.add-to-cart-form');
-
-          addToCartForms.forEach(form => {
-              form.addEventListener('submit', async function(event) {
-                  event.preventDefault(); 
-
-                  const formData = new FormData(form);
-                  const urlSearchParams = new URLSearchParams();
-                  for (const pair of formData) {
-                      urlSearchParams.append(pair[0], pair[1]);
-                  }
-
-                  console.log("Enviando datos al carrito (AJAX):", urlSearchParams.toString());
-
-                  try {
-                      const response = await fetch('/user/carrito/add', {
-                          method: 'POST',
-                          headers: {
-                              'Content-Type': 'application/x-www-form-urlencoded'
-                          },
-                          body: urlSearchParams.toString()
-                      });
-
-                      const data = await response.json();
-                      console.log("Respuesta AJAX del carrito:", data);
-
-                      if (typeof showModal === 'function') {
-                          showModal(data.message, data.success, data.redirectUrl || null);
-                      } else {
-                          console.error("ERROR: showModal function not found in script.js.");
-                          alert(data.message);
-                          if (data.redirectUrl) {
-                              window.location.href = data.redirectUrl;
-                          }
-                      }
-
-                  } catch (error) {
-                      console.error('Error al añadir al carrito mediante AJAX:', error);
-                      if (typeof showModal === 'function') {
-                         showModal('Error al conectar con el servidor. Inténtelo de nuevo.', false, null);
-                      } else {
-                         alert('Error al conectar con el servidor. Inténtelo de nuevo.');
-                      }
-                  }
-              });
-          });
-      });
-             console.log("Script de formulario de reclamación cargado (en página principal).");
+            console.log("Script de formulario de reclamación cargado (en página principal).");
             const reclamacionForm = document.getElementById('reclamacionForm');
             const reclamacionMessageDiv = document.getElementById('reclamacionMessage');
 
