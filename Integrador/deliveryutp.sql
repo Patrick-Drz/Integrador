@@ -65,8 +65,38 @@ CREATE TABLE `carritos` (
 
 LOCK TABLES `carritos` WRITE;
 /*!40000 ALTER TABLE `carritos` DISABLE KEYS */;
-INSERT INTO `carritos` VALUES (1,'ACTIVO','2025-07-09 21:18:35.000000','2025-06-07 21:58:19.000000',1),(2,'ACTIVO','2025-06-08 15:31:38.000000','2025-06-08 00:06:09.000000',2),(3,'ACTIVO','2025-07-09 21:51:56.000000','2025-07-09 21:25:11.000000',4),(4,'ACTIVO','2025-07-09 21:54:33.000000','2025-07-09 21:54:29.000000',6),(5,'ACTIVO','2025-10-19 15:09:29.000000','2025-10-19 15:09:29.000000',3),(6,'ACTIVO','2025-10-21 01:30:17.000000','2025-10-19 17:40:35.000000',8),(7,'ACTIVO','2025-10-19 17:42:41.000000','2025-10-19 17:42:41.000000',9),(8,'ACTIVO','2025-10-21 02:13:44.000000','2025-10-21 02:13:44.000000',10);
+INSERT INTO `carritos` VALUES (1,'ACTIVO','2025-07-09 21:18:35.000000','2025-06-07 21:58:19.000000',1),(2,'ACTIVO','2025-06-08 15:31:38.000000','2025-06-08 00:06:09.000000',2),(3,'ACTIVO','2025-07-09 21:51:56.000000','2025-07-09 21:25:11.000000',4),(4,'ACTIVO','2025-07-09 21:54:33.000000','2025-07-09 21:54:29.000000',6),(5,'ACTIVO','2025-10-19 15:09:29.000000','2025-10-19 15:09:29.000000',3),(6,'ACTIVO','2025-11-24 19:21:08.000000','2025-10-19 17:40:35.000000',8),(7,'ACTIVO','2025-10-19 17:42:41.000000','2025-10-19 17:42:41.000000',9),(8,'ACTIVO','2025-10-21 02:13:44.000000','2025-10-21 02:13:44.000000',10);
 /*!40000 ALTER TABLE `carritos` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `contacto`
+--
+
+DROP TABLE IF EXISTS `contacto`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `contacto` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `correo` varchar(255) DEFAULT NULL,
+  `fecha_creacion` datetime(6) DEFAULT NULL,
+  `mensaje` text NOT NULL,
+  `nombre_completo` varchar(255) DEFAULT NULL,
+  `id_usuario` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKjrdu5k6tqvyquanvo6v7qdnw8` (`id_usuario`),
+  CONSTRAINT `FKjrdu5k6tqvyquanvo6v7qdnw8` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `contacto`
+--
+
+LOCK TABLES `contacto` WRITE;
+/*!40000 ALTER TABLE `contacto` DISABLE KEYS */;
+INSERT INTO `contacto` VALUES (1,'u11223344@utp.edu.pe','2025-11-24 19:28:50.000000','Me gusta su pagina','Estefano Rodriguez',8);
+/*!40000 ALTER TABLE `contacto` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -91,7 +121,7 @@ CREATE TABLE `detalles_orden_venta` (
   CONSTRAINT `FK_detalle_oferta` FOREIGN KEY (`id_oferta`) REFERENCES `ofertas` (`id`),
   CONSTRAINT `FK_detalle_orden` FOREIGN KEY (`id_orden_venta`) REFERENCES `ordenes_venta` (`id`),
   CONSTRAINT `FK_detalle_producto` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -100,7 +130,7 @@ CREATE TABLE `detalles_orden_venta` (
 
 LOCK TABLES `detalles_orden_venta` WRITE;
 /*!40000 ALTER TABLE `detalles_orden_venta` DISABLE KEYS */;
-INSERT INTO `detalles_orden_venta` VALUES (1,2,15.00,30.00,1,NULL,1),(2,2,8.00,16.00,1,1,NULL),(3,3,8.00,24.00,2,1,NULL),(4,1,8.00,8.00,3,1,NULL),(5,1,15.00,15.00,3,NULL,1),(6,1,20.00,20.00,4,NULL,2),(7,1,8.00,8.00,4,1,NULL),(8,1,5.00,5.00,4,3,NULL),(9,1,8.00,8.00,5,1,NULL),(10,1,13.00,13.00,5,NULL,1),(11,1,13.00,13.00,6,NULL,1),(12,1,9.00,9.00,7,1,NULL),(13,1,20.00,20.00,7,NULL,2),(14,1,4.00,4.00,8,6,NULL),(15,1,5.00,5.00,8,10,NULL),(16,2,3.00,6.00,8,9,NULL);
+INSERT INTO `detalles_orden_venta` VALUES (1,2,15.00,30.00,1,NULL,1),(2,2,8.00,16.00,1,1,NULL),(3,3,8.00,24.00,2,1,NULL),(4,1,8.00,8.00,3,1,NULL),(5,1,15.00,15.00,3,NULL,1),(6,1,20.00,20.00,4,NULL,2),(7,1,8.00,8.00,4,1,NULL),(8,1,5.00,5.00,4,3,NULL),(9,1,8.00,8.00,5,1,NULL),(10,1,13.00,13.00,5,NULL,1),(11,1,13.00,13.00,6,NULL,1),(12,1,9.00,9.00,7,1,NULL),(13,1,20.00,20.00,7,NULL,2),(14,1,4.00,4.00,8,6,NULL),(15,1,5.00,5.00,8,10,NULL),(16,2,3.00,6.00,8,9,NULL),(17,2,9.00,18.00,9,1,NULL),(18,2,9.00,18.00,10,1,NULL);
 /*!40000 ALTER TABLE `detalles_orden_venta` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -125,7 +155,7 @@ CREATE TABLE `items_carrito` (
   CONSTRAINT `FKohh8pmo6fyfy0jonnx5a3efp1` FOREIGN KEY (`id_producto`) REFERENCES `productos` (`id`),
   CONSTRAINT `FKrjklg8mcynueldgl17aq9yx76` FOREIGN KEY (`id_carrito`) REFERENCES `carritos` (`id`),
   CONSTRAINT `FKsppg9c27mr5wj4u423asfo40n` FOREIGN KEY (`id_oferta`) REFERENCES `ofertas` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=80 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=82 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -165,7 +195,7 @@ CREATE TABLE `ofertas` (
 
 LOCK TABLES `ofertas` WRITE;
 /*!40000 ALTER TABLE `ofertas` DISABLE KEYS */;
-INSERT INTO `ofertas` VALUES (1,_binary '','OROD001','Hamburguesa mas papas fritas y gaseosa','2025-06-10','2025-06-09','Oferta Especial',13.00,20.00),(2,_binary '','OROD002','Hamburguesa mas papas fritas, helado y gaseosa','2025-07-15','2025-07-09','Oferta Especial',20.00,25.00),(3,_binary '','OROD003','Pizza , pan al ajo, gaseosa y postre de chocolate','2025-11-19','2025-10-19','Oferta Especial',22.00,30.00);
+INSERT INTO `ofertas` VALUES (1,_binary '\0','OROD001','Hamburguesa mas papas fritas y gaseosa','2025-06-10','2025-06-09','Oferta Especial',13.00,20.00),(2,_binary '','OROD002','Hamburguesa mas papas fritas, helado y gaseosa','2025-07-15','2025-07-09','Oferta Especial',20.00,25.00),(3,_binary '','OROD003','Pizza , pan al ajo, gaseosa y postre de chocolate','2025-11-19','2025-10-19','Oferta Especial',22.00,30.00);
 /*!40000 ALTER TABLE `ofertas` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -187,7 +217,7 @@ CREATE TABLE `ordenes_venta` (
   KEY `FK_orden_ubicacion` (`id_ubicacion_entrega`),
   CONSTRAINT `FK_orden_ubicacion` FOREIGN KEY (`id_ubicacion_entrega`) REFERENCES `ubicaciones` (`id`),
   CONSTRAINT `FK_orden_usuario` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -196,7 +226,7 @@ CREATE TABLE `ordenes_venta` (
 
 LOCK TABLES `ordenes_venta` WRITE;
 /*!40000 ALTER TABLE `ordenes_venta` DISABLE KEYS */;
-INSERT INTO `ordenes_venta` VALUES (1,'2025-06-07 23:25:58.000000',46.00,1,1),(2,'2025-06-08 00:06:34.000000',24.00,2,2),(3,'2025-06-08 15:31:45.000000',23.00,2,2),(4,'2025-07-09 21:18:36.000000',33.00,1,1),(5,'2025-07-09 21:56:03.000000',21.00,6,8),(6,'2025-10-19 18:07:41.000000',13.00,8,9),(7,'2025-10-19 19:10:58.000000',29.00,8,9),(8,'2025-10-21 01:30:21.000000',15.00,8,9);
+INSERT INTO `ordenes_venta` VALUES (1,'2025-06-07 23:25:58.000000',46.00,1,1),(2,'2025-06-08 00:06:34.000000',24.00,2,2),(3,'2025-06-08 15:31:45.000000',23.00,2,2),(4,'2025-07-09 21:18:36.000000',33.00,1,1),(5,'2025-07-09 21:56:03.000000',21.00,6,8),(6,'2025-10-19 18:07:41.000000',13.00,8,9),(7,'2025-10-19 19:10:58.000000',29.00,8,9),(8,'2025-10-21 01:30:21.000000',15.00,8,9),(9,'2025-11-23 11:58:47.000000',18.00,8,9),(10,'2025-11-23 11:58:47.000000',18.00,8,9);
 /*!40000 ALTER TABLE `ordenes_venta` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -217,7 +247,7 @@ CREATE TABLE `productos` (
   `ruta_imagen` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK1nk4ttgpqciqys08mooa4ruo` (`codigo_producto`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -226,7 +256,7 @@ CREATE TABLE `productos` (
 
 LOCK TABLES `productos` WRITE;
 /*!40000 ALTER TABLE `productos` DISABLE KEYS */;
-INSERT INTO `productos` VALUES (1,'PROD001','Hamburguesa deliciosa y jugosa','Hamburguesa',9.00,45,'/uploads/1749518839180_hamburguesa.jpg'),(3,'PROD002','Papas Fritas deliciosas','Papas Fritas',5.00,25,'/uploads/1749518530224_papas-fritas.jpg'),(4,'PROD003','Gaseosa helada y frescaa','Gaseosa',5.00,30,'/uploads/1760913907369_Gaseosas.jpg'),(5,'PROD004','Pizza grande con extra queso ','Pizza',7.00,20,'/uploads/1761027193682_pizza.jfif'),(6,'PROD005','Empanadas de queso con jamón','Empanadas',4.00,15,'/uploads/1761027225953_empanadas.jfif'),(7,'PROD006','Un espesso diluido con agua caliente','Café Americano',3.50,14,'/uploads/1761027529409_cafe.jfif'),(8,'PROD007','Torta con bizcocho jugoso y su intenso fudge de chocolate','Torta de chocolate',4.00,15,'/uploads/1761027829358_torta_chocolate.jfif'),(9,'PROD008','Clásico sándwich de pollo desilachado con apio y mayonesa','Pan con pollo',3.00,15,'/uploads/1761027928465_pan_pollo.jfif'),(10,'PROD009','Fresas frescas licuadas con leche evaporada y azúcar','Jugo de fresa con leche',5.00,12,'/uploads/1761028070123_fresa_leche.jpeg');
+INSERT INTO `productos` VALUES (1,'PROD001','Hamburguesa deliciosa y jugosa','Hamburguesa',9.00,41,'/uploads/1749518839180_hamburguesa.jpg'),(3,'PROD002','Papas Fritas deliciosas','Papas Fritas',5.00,25,'/uploads/1749518530224_papas-fritas.jpg'),(4,'PROD003','Gaseosa helada y frescaa','Gaseosa',5.00,30,'/uploads/1760913907369_Gaseosas.jpg'),(5,'PROD004','Pizza grande con extra queso ','Pizza',7.00,20,'/uploads/1761027193682_pizza.jfif'),(6,'PROD005','Empanadas de queso con jamón','Empanadas',4.00,15,'/uploads/1761027225953_empanadas.jfif'),(7,'PROD006','Un espesso diluido con agua caliente','Café Americano',3.50,14,'/uploads/1761027529409_cafe.jfif'),(8,'PROD007','Torta con bizcocho jugoso y su intenso fudge de chocolate','Torta de chocolate',4.00,15,'/uploads/1761027829358_torta_chocolate.jfif'),(9,'PROD008','Clásico sándwich de pollo desilachado con apio y mayonesa','Pan con pollo',3.00,15,'/uploads/1761027928465_pan_pollo.jfif'),(10,'PROD009','Fresas frescas licuadas con leche evaporada y azúcar','Jugo de fresa con leche',5.00,12,'/uploads/1761028070123_fresa_leche.jpeg'),(11,'PROD010','Crujiente milanesa de pollo con lechuga, tomate y mayonesa en pan ciabatta.','Sándwich de Milanesa',7.50,20,'/uploads/1764035411414_Sándwich de Milanesa.jpg'),(12,'PROD011','Mix de lechugas, trozos de pollo a la plancha, crutones, queso parmesano y aderezo césar.','Ensalada César',12.00,15,'/uploads/1764035489659_Ensalada César.jfif'),(13,'PROD012','Cuadrado de chocolate húmedo con nueces y una capa de fudge casero encima.','Brownie con Fudge',3.50,30,'/uploads/1764035589697_Brownie con Fudge.jpg'),(14,'PROD013','Bebida refrescante de maracuyá con hielo granizado, ideal para el verano.','Frozen de Maracuyá',6.00,25,'/uploads/1764035668179_Frozen de Maracuyá.jpg'),(15,'PROD014','Masa wantán frita rellena de queso fresco, acompañados de salsa de palta (guacamole).','Porción de Tequeños',8.00,20,'/uploads/1764035743881_Porción de Tequeños.jpg'),(16,'PROD015','Sándwich fresco de tres capas en pan de molde con palta, huevo duro, tomate y un toque de mayonesa.','Triple Clásico',6.00,18,'/uploads/1764035968165_Triple Clásico.jpg');
 /*!40000 ALTER TABLE `productos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -239,13 +269,14 @@ DROP TABLE IF EXISTS `reclamacion`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `reclamacion` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `nombre_completo` varchar(255) NOT NULL,
-  `correo` varchar(255) NOT NULL,
-  `tipo_reclamacion` varchar(255) NOT NULL,
   `descripcion` text NOT NULL,
-  `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `fecha_creacion` datetime(6) NOT NULL,
+  `tipo_reclamacion` varchar(255) NOT NULL,
+  `id_usuario` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKsr9p85ry4rd36dbdxgk89kyhb` (`id_usuario`),
+  CONSTRAINT `FKsr9p85ry4rd36dbdxgk89kyhb` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -254,7 +285,7 @@ CREATE TABLE `reclamacion` (
 
 LOCK TABLES `reclamacion` WRITE;
 /*!40000 ALTER TABLE `reclamacion` DISABLE KEYS */;
-INSERT INTO `reclamacion` VALUES (1,'Patrick Del Aguila','u22327322@utp.edu.pe','SUGERENCIA','Mejoren su Pagina','2025-06-08 18:54:18'),(2,'Patrick Del Aguila','u22327322@utp.edu.pe','RECLAMACION','No me carga los productos que selecciono en el carrito','2025-06-08 18:58:09'),(3,'Franco Torres','u13467985@utp.edu.pe','QUEJA','No me gusta su pagina','2025-06-08 20:33:01'),(4,'Patrick Del Aguila','u22327322@utp.edu.pe','SUGERENCIA','Me gustaria que mejoren la parte de la compra de porductos','2025-07-10 02:10:48'),(5,'Estefano Rodriguez','u11223344@utp.edu.pe','QUEJA','Tuve inconvenientes al momento de iniciar sesion\n','2025-10-19 22:52:54'),(6,'Estefano Rodriguez','u11223344@utp.edu.pe','SUGERENCIA','Me gustaria que tuvieran mas variedad de productos','2025-10-21 06:31:00');
+INSERT INTO `reclamacion` VALUES (1,'No me carga la pagina','2025-11-24 19:22:49.000000','QUEJA',8),(2,'No me carga la pagina','2025-11-24 19:22:49.000000','QUEJA',8);
 /*!40000 ALTER TABLE `reclamacion` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -283,7 +314,7 @@ CREATE TABLE `ubicaciones` (
 
 LOCK TABLES `ubicaciones` WRITE;
 /*!40000 ALTER TABLE `ubicaciones` DISABLE KEYS */;
-INSERT INTO `ubicaciones` VALUES (1,'A0103','Primer Piso',1),(2,'A0307','Segundo Piso',2),(3,'B0203','Segundo Piso',4),(8,'C0303','Tercer Piso',6),(9,'A0303','Tercer Piso',8);
+INSERT INTO `ubicaciones` VALUES (1,'A0103','Primer Piso',1),(2,'A0307','Segundo Piso',2),(3,'B0203','Segundo Piso',4),(8,'C0303','Tercer Piso',6),(9,'B0706','Septimo Piso',8);
 /*!40000 ALTER TABLE `ubicaciones` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -328,4 +359,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-10-27 22:51:47
+-- Dump completed on 2025-11-24 21:01:35
