@@ -232,3 +232,46 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+    const contactoForm = document.getElementById('contactoForm');
+    if (contactoForm) {
+        const contactoMessageDiv = document.getElementById('contactoMessage');
+
+        contactoForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            if (contactoMessageDiv) contactoMessageDiv.textContent = '';
+
+            const formData = new FormData(contactoForm);
+            const jsonData = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch('/user/contacto/enviar', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', },
+                    body: JSON.stringify(jsonData),
+                });
+
+                if (response.status === 403 || response.status === 401) {
+                    showModal("Debes iniciar sesión para enviar un mensaje.", false, '/login');
+                    return;
+                }
+
+                const data = await response.json();
+                
+                if (contactoMessageDiv) {
+                    contactoMessageDiv.textContent = data.message;
+                    contactoMessageDiv.className = data.success ? 'mt-3 text-center text-success' : 'mt-3 text-center text-danger';
+                }
+                
+                if (data.success) {
+                    contactoForm.reset();
+                }
+
+            } catch (error) {
+                if (contactoMessageDiv) {
+                    contactoMessageDiv.textContent = 'Error de conexión.';
+                    contactoMessageDiv.className = 'mt-3 text-center text-danger';
+                }
+            }
+        });
+    }

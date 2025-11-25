@@ -14,7 +14,7 @@ public class MainController {
     }
     @GetMapping("/indexUsuario")
     public String indexUsuarioPage() {
-        return "indexUsuario"; //
+        return "indexUsuario"; 
     }
     @GetMapping("/ofertasUsuario")
     public String ofertasUsuarioPage() {return "ofertasUsuario"; }

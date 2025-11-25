@@ -25,6 +25,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.ignoringRequestMatchers(
                 "/register-ajax",
                 "/user/reclamacion/enviar",
+                "/user/contacto/enviar",  
                 "/user/carrito/add",
                 "/user/carrito/update",
                 "/user/carrito/remove",
@@ -38,7 +39,7 @@ public class SecurityConfig {
                 .requestMatchers("/login", "/register-ajax").permitAll() 
                 .requestMatchers(HttpMethod.GET, "/user/carrito", "/user/aula").authenticated()
 
-                .requestMatchers(HttpMethod.POST, "/user/carrito/**", "/user/aula/save", "/user/reclamacion/enviar").authenticated()
+                .requestMatchers(HttpMethod.POST, "/user/carrito/**", "/user/aula/save", "/user/reclamacion/enviar", "/user/contacto/enviar").authenticated()
 
                 .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
 

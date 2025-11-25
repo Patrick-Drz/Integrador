@@ -21,7 +21,6 @@ public class WelcomeController {
     public String welcome(Authentication authentication, RedirectAttributes redirectAttributes, Principal principal) {
 
         for (GrantedAuthority auth : authentication.getAuthorities()) {
-            // Si es ADMIN...
             if ("ROLE_ADMIN".equals(auth.getAuthority())) {
                 redirectAttributes.addFlashAttribute("welcomeMessage", "¡Bienvenido, Admin Principal!");
                 return "redirect:/admin/dashboard";

@@ -1,7 +1,6 @@
 package com.UTP.Delivery.Integrador.Controller;
 
 import com.UTP.Delivery.Integrador.Model.Oferta;
-import com.UTP.Delivery.Integrador.Model.OrdenVenta;
 import com.UTP.Delivery.Integrador.Model.Producto;
 import com.UTP.Delivery.Integrador.Model.Reclamacion;
 import com.UTP.Delivery.Integrador.Service.*;
@@ -22,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/admin")
@@ -38,6 +36,8 @@ public class AdminController {
     private VentaService ventaService;
     @Autowired
     private ReclamacionService reclamacionService;
+    @Autowired
+    private ContactoService contactoService; 
     @Autowired
     private ReporteService reporteService;
 
@@ -145,6 +145,9 @@ public class AdminController {
     @PostMapping("/ofertas/add")
     public String addOferta(@ModelAttribute Oferta oferta, RedirectAttributes redirectAttributes) {
         try {
+            if (oferta.getActiva() == null) {
+                oferta.setActiva(false);
+            }
             ofertaService.saveOferta(oferta);
             redirectAttributes.addFlashAttribute("addMessage", "Oferta añadida correctamente.");
             redirectAttributes.addFlashAttribute("addSuccess", true);
@@ -161,6 +164,9 @@ public class AdminController {
         try {
             if (oferta.getId() == null) {
                 throw new IllegalArgumentException("ID de la oferta no puede ser nulo para la edición.");
+            }
+            if (oferta.getActiva() == null) {
+                oferta.setActiva(false);
             }
             ofertaService.updateOferta(oferta);
             redirectAttributes.addFlashAttribute("editMessage", "Oferta modificada correctamente.");
@@ -206,6 +212,18 @@ public class AdminController {
             return "reclamacionesAdmin";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error al cargar las reclamaciones: " + e.getMessage());
+            e.printStackTrace();
+            return "redirect:/admin/dashboard";
+        }
+    }
+
+    @GetMapping("/contactos")
+    public String showContactosAdmin(Model model, RedirectAttributes redirectAttributes) {
+        try {
+            model.addAttribute("contactos", contactoService.getAllContactos());
+            return "contactosAdmin";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al cargar los mensajes de contacto: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/admin/dashboard";
         }

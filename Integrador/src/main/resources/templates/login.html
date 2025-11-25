@@ -3,12 +3,10 @@
 <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link
-                rel="stylesheet"
-                href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
-        />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
         <link rel="stylesheet" href="styleLogin.css" />
         <title>Delivery UTP</title>
+        <link rel="icon" type="image/png" href="/assets/altum.png">
     </head>
 
     <body>
@@ -24,11 +22,20 @@
                     </div>
                     <span>o usa tu correo electrónico para registrarte</span>
 
-                    <input type="text" placeholder="Nombre Completo" name="registerNombreCompleto" id="registerNombreCompleto" required />
+                    <input type="text" placeholder="Nombre Completo" name="registerNombreCompleto" id="registerNombreCompleto" required 
+                           pattern="[a-zA-ZÀ-ÿ\u00f1\u00d1\s]+" 
+                           title="El nombre solo debe contener letras y espacios."
+                           oninput="this.value = this.value.replace(/[^a-zA-ZÀ-ÿ\u00f1\u00d1\s]/g, '')"/>
+
                     <input type="text" placeholder="Código de Estudiante (Ej: u12345678)" name="registerCodigoEstudiante" id="registerCodigoEstudiante"
-                           pattern="[uU]\d{8}" title="Debe ser 'u' o 'U' seguida de 8 dígitos (Ej: u12345678)" required />
+                           pattern="[uU]\d{8}" maxlength="9"
+                           title="Debe ser 'u' o 'U' seguida de 8 dígitos (Ej: u12345678)" 
+                           oninput="this.value = this.value.toUpperCase()" required />
+
                     <input type="email" placeholder="Correo" name="registerEmail" id="registerEmail" required />
-                    <input type="password" placeholder="Contraseña" name="registerPassword" id="registerPassword" required />
+                    
+                    <input type="password" placeholder="Contraseña" name="registerPassword" id="registerPassword" minlength="6" required />
+                    
                     <button type="submit">Registrarse</button>
                 </form>
             </div>

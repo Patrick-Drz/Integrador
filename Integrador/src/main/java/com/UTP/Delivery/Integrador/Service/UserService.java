@@ -29,6 +29,9 @@ public class UserService {
         if (userRepository.findByCodigoEstudiante(codigoEstudiante).isPresent()) {
             throw new IllegalArgumentException("El código de estudiante ya está registrado.");
         }
+        if (userRepository.findByNombreCompleto(nombreCompleto).isPresent()) {
+            throw new IllegalArgumentException("Ya existe un usuario registrado con ese Nombre Completo.");
+        }
         if (!isValidCodigoEstudiante(codigoEstudiante)) {
             throw new IllegalArgumentException("El formato del código de estudiante es inválido. Debe ser 'u' o 'U' seguida de 8 dígitos.");
         }

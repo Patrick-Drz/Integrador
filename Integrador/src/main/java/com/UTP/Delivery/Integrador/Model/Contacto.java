@@ -7,27 +7,30 @@ import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "reclamacion")
+@Table(name = "contacto")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Reclamacion {
+public class Contacto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario", nullable = false)
     private User usuario;
 
-    @Column(name = "tipo_reclamacion", nullable = false)
-    private String tipoReclamacion;
+    @Column(name = "nombre_completo", length = 255)
+    private String nombreCompleto;
 
-    @Column(name = "descripcion", columnDefinition = "TEXT", nullable = false)
-    private String descripcion;
+    @Column(name = "correo", length = 255)
+    private String correo;
 
-    @Column(name = "fecha_creacion", nullable = false, updatable = false)
+    @Column(name = "mensaje", columnDefinition = "TEXT", nullable = false)
+    private String mensaje;
+
+    @Column(name = "fecha_creacion", updatable = false)
     private LocalDateTime fechaCreacion;
 
     @PrePersist

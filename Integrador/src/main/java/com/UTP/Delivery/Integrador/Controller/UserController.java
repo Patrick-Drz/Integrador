@@ -24,6 +24,7 @@ public class UserController {
     @Autowired private VentaService ventaService;
     @Autowired private ReclamacionService reclamacionService;
     @Autowired private GlobalControllerAdvice globalControllerAdvice;
+    @Autowired private ContactoService contactoService;
 
     @GetMapping({"/", "/home"})
     public String userHome() {
@@ -111,7 +112,7 @@ public class UserController {
     }
 
     @PostMapping("/carrito/update")
-    @ResponseBody // CORREGIDO: Devuelve JSON
+    @ResponseBody 
     public Map<String, Object> updateItemQuantity(@RequestParam Long itemId,
                                                   @RequestParam Integer quantity) {
         Map<String, Object> response = new HashMap<>();
@@ -127,7 +128,7 @@ public class UserController {
     }
 
     @PostMapping("/carrito/remove")
-    @ResponseBody // CORREGIDO: Devuelve JSON
+    @ResponseBody 
     public Map<String, Object> removeItemFromCarrito(@RequestParam Long itemId) {
         Map<String, Object> response = new HashMap<>();
         try {
@@ -170,17 +171,50 @@ public class UserController {
         return response;
     }
 
-    @PostMapping("/reclamacion/enviar")
+@PostMapping("/reclamacion/enviar")
     @ResponseBody
-    public Map<String, Object> enviarReclamacion(@RequestBody Reclamacion reclamacion) {
+    public Map<String, Object> enviarReclamacion(@RequestBody Map<String, String> payload, Principal principal) {
         Map<String, Object> response = new HashMap<>();
         try {
-            Reclamacion reclamacionGuardada = reclamacionService.guardarReclamacion(reclamacion);
+            User currentUser = userService.getUserByCorreo(principal.getName());
+
+            Reclamacion reclamacion = new Reclamacion();
+            reclamacion.setUsuario(currentUser); // Relación DB
+            reclamacion.setTipoReclamacion(payload.get("tipoReclamacion"));
+            reclamacion.setDescripcion(payload.get("descripcion"));
+            
+            reclamacionService.guardarReclamacion(reclamacion);
+            
             response.put("success", true);
-            response.put("message", "Reclamación enviada.");
+            response.put("message", "Reclamación enviada correctamente.");
         } catch (Exception e) {
             response.put("success", false);
-            response.put("message", "Error al enviar reclamación.");
+            response.put("message", "Error al enviar reclamación: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return response;
+    }
+
+    @PostMapping("/contacto/enviar")
+    @ResponseBody
+    public Map<String, Object> enviarContacto(@RequestBody Map<String, String> payload, Principal principal) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            User currentUser = userService.getUserByCorreo(principal.getName());
+
+            Contacto contacto = new Contacto();
+            contacto.setUsuario(currentUser);
+            contacto.setNombreCompleto(payload.get("nombreCompleto")); 
+            contacto.setCorreo(payload.get("correo"));
+            contacto.setMensaje(payload.get("mensaje"));
+
+            contactoService.guardarContacto(contacto);
+
+            response.put("success", true);
+            response.put("message", "Mensaje de contacto enviado.");
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error al enviar mensaje.");
             e.printStackTrace();
         }
         return response;
