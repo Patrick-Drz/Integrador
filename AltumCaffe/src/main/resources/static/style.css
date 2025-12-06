@@ -1,0 +1,229 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container.mt-4 {
+    flex-grow: 1;
+}
+
+*{
+    margin: 0;
+    padding: 0;
+}
+
+.navbar-nav .btn.btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+
+.navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.95rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    transition: color 0.2s ease-in-out;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #fff;
+}
+
+.navbar-brand {
+    padding: 0 15px;
+}
+
+.acciones-col {
+    min-width: 180px;
+}
+
+
+.product-card {
+     min-height: 350px;
+     display: flex;
+     flex-direction: column;
+     justify-content: space-between;
+}
+.product-card .card-body {
+     flex-grow: 1;
+     display: flex;
+     flex-direction: column;
+}
+.product-card .card-text {
+     flex-grow: 1;
+     max-height: 80px;
+     overflow: hidden;
+     text-overflow: ellipsis;
+}
+.product-card .card-footer {
+     background-color: transparent;
+     border-top: none;
+}
+
+.price-text {
+     font-size: 1.25rem;
+     font-weight: bold;
+     color: #28a745;
+}
+
+.regular-price {
+    text-decoration: line-through;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.carrito-container {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.carrito-header h2 {
+    color: #343a40;
+    margin-bottom: 20px;
+}
+.carrito-item {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+}
+.carrito-item:last-child {
+    border-bottom: none;
+}
+.item-details {
+    flex-grow: 1;
+}
+.item-details h5 {
+    margin-bottom: 5px;
+}
+.item-details p {
+    margin-bottom: 0;
+    color: #6c757d;
+}
+.item-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.item-controls .form-control {
+    width: 70px;
+    text-align: center;
+}
+.item-price {
+    font-weight: bold;
+    min-width: 100px;
+    text-align: right;
+}
+.carrito-summary {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+.carrito-total {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #28a745;
+}
+.ubicacion-info {
+    background-color: #f8f9fa;
+    border-left: 5px solid #007bff;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+.alert-info {
+    margin-top: 20px;
+}
+
+.modal-hidden {
+    display: none;
+}
+
+#myModal.modal {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+    justify-content: center;
+    align-items: center;
+}
+
+#myModal .modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 30px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    text-align: center;
+    position: relative;
+}
+
+#myModal .close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    cursor: pointer;
+}
+
+#myModal .close-button:hover,
+#myModal .close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#myModal .modal-button {
+    background-color: #512da8;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+
+#myModal .modal-button:hover {
+    background-color: #4527a0;
+}
+
+.success-message {
+    color: green;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.error-message {
+    color: red;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+#cafeteriaCarousel .carousel-item img {
+    height: 400px;
+    object-fit: cover;
+    width: 100%;
+}

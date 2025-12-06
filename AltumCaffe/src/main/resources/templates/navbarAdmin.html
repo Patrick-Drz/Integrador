@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Barra de Navegación de Adminitrador</title>
+</head>
+  <body>
+    <nav th:fragment="adminNavbar" class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+      <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/indexAdmin}">
+          <img src="/assets/altum.png" alt="Logo de Inicio" width="35" height="40" class="d-inline-block align-text-top">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbarContent"
+                aria-controls="adminNavbarContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="adminNavbarContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item d-lg-none">
+              <a class="nav-link" aria-current="page" th:href="@{/indexAdmin}">Inicio</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/admin/menusAdmin}">Menus</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/admin/ofertasAdmin}">Ofertas</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/admin/reclamaciones}">Reclamaciones</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/admin/contactos}">Mensajes</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" th:href="@{/admin/ventas}">Historial de Ventas</a>
+            </li>
+          </ul>
+
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <button type="button" class="nav-link btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                Cerrar Sesión
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </body>
+</html>
